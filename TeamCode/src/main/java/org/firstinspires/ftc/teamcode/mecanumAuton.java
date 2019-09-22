@@ -1,9 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name="mecanumAuton")
 public class mecanumAuton extends LinearOpMode {
@@ -11,6 +17,9 @@ public class mecanumAuton extends LinearOpMode {
     public DcMotor right_back;
     public DcMotor left_front;
     public DcMotor left_back;
+    public BNO055IMU imu;
+    double current;
+
 
 
 
@@ -21,17 +30,69 @@ public class mecanumAuton extends LinearOpMode {
         left_front = hardwareMap.dcMotor.get("left_front");
         left_back = hardwareMap.dcMotor.get("left_back");
 
+
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
+
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_back.setDirection(DcMotorSimple.Direction.REVERSE);
         left_front.setDirection(DcMotorSimple.Direction.FORWARD);
-        left_back.setDirection(DcMotorSimple.Direction.FORWARD);
-        waitForStart();
-        if(opModeIsActive()) {
 
-            strafe(0.5, 2);
+        waitForStart();
+        if (opModeIsActive()) {
+            driveStraight(0.25, 2133.6);
+            turn(0.125,90);
+            driveStraight(0.25, 1828.8);
+            turn(0.125, 90);
+            driveStraight(0.25, 2133.6);
+            turn(0.125, 90);
+            driveStraight(0.25, 1828.8);
+            turn(0.125, 90);
+
+
 
         }
 
+
+    }
+
+
+    public void turn(double power, double degrees) {
+        Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        setPowers(-power, -power, power, power);
+
+        if(power > 0) {
+            current = turn.firstAngle*-1;
+            while (current <= degrees) {
+                sleep(5);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle * -1;
+                if (opModeIsActive() == false) {
+                    break;
+                }
+            }
+        } else if(power <0) {
+            current = turn.firstAngle;
+            while(current <= degrees) {
+                sleep(5);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle;
+                if (opModeIsActive() == false) {
+                    break;
+                }
+            }
+        }
+        setBrakeBehavior();
+        setPowers(0,0,0,0);
     }
     public void strafe(double power, double revolutions){
         //Calculate Distance
@@ -41,12 +102,11 @@ public class mecanumAuton extends LinearOpMode {
         resetEncoder();
         useEncoder();
         setPowers(-power, power, power, -power);
-        /*
+
         if(power < 0) {
 
-
             //Left subroutine
-            while(right_front.getCurrentPosition() < revolutions) {
+            while(right_front.getCurrentPosition() < counts) {
                 sleep(5);
                 if(opModeIsActive() == false) {
                     break;
@@ -55,8 +115,9 @@ public class mecanumAuton extends LinearOpMode {
             setBrakeBehavior();
             setPowers(0,0,0,0);
         } else if (power > 0) {
+            counts = counts * -1;
             //right subroutine
-            while(right_front.getCurrentPosition()> revolutions) {
+            while(right_front.getCurrentPosition()> counts) {
                 sleep(5);
                 if(opModeIsActive() == false) {
                     break;
@@ -65,8 +126,8 @@ public class mecanumAuton extends LinearOpMode {
             setBrakeBehavior();
             setPowers(0,0,0,0);
         }
-        */
-         sleep(5000);
+
+
 
 
     }
