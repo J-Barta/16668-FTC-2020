@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -18,6 +19,7 @@ public class mecanumAuton extends LinearOpMode {
     public DcMotor left_front;
     public DcMotor left_back;
     public BNO055IMU imu;
+    public Servo claw;
     double current;
 
 
@@ -29,6 +31,7 @@ public class mecanumAuton extends LinearOpMode {
         right_back = hardwareMap.dcMotor.get("right_back");
         left_front = hardwareMap.dcMotor.get("left_front");
         left_back = hardwareMap.dcMotor.get("left_back");
+        claw = hardwareMap.servo.get("claw");
 
 
 
@@ -49,14 +52,8 @@ public class mecanumAuton extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
-            driveStraight(0.25, 2133.6);
-            turn(0.125,90);
-            driveStraight(0.25, 1828.8);
-            turn(0.125, 90);
-            driveStraight(0.25, 2133.6);
-            turn(0.125, 90);
-            driveStraight(0.25, 1828.8);
-            turn(0.125, 90);
+            claw.setPosition(-1);
+            sleep(5000);
 
 
 

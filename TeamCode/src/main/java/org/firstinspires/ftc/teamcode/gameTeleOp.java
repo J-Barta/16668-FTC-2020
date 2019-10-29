@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Game TeleOp")
 public class gameTeleOp extends LinearOpMode {
@@ -15,6 +16,19 @@ public class gameTeleOp extends LinearOpMode {
     public DcMotor scissor2;
     public DcMotor pinion;
 
+    public Servo claw;
+    public Servo foundation1;
+    public Servo foundation2;
+
+    boolean prevState = false;
+    boolean claw_open;
+    boolean claw_close;
+    boolean foundation_trigger;
+    boolean currentState;
+    boolean grabbed;
+    double scissor_power;
+    double pinion_power;
+
     public void runOpMode() throws InterruptedException {
         right_front = hardwareMap.dcMotor.get("right_front");
         right_back = hardwareMap.dcMotor.get("right_back");
@@ -23,6 +37,10 @@ public class gameTeleOp extends LinearOpMode {
         scissor1 = hardwareMap.dcMotor.get("scissor1");
         scissor2 = hardwareMap.dcMotor.get("scissor2");
         pinion = hardwareMap.dcMotor.get("pinion");
+
+        claw = hardwareMap.get(Servo.class, "claw");
+        foundation1 = hardwareMap.get(Servo.class, "foundation1");
+        foundation2 = hardwareMap.get(Servo.class, "foundation1");
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -39,6 +57,7 @@ public class gameTeleOp extends LinearOpMode {
         scissor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         waitForStart();
 
@@ -87,12 +106,42 @@ public class gameTeleOp extends LinearOpMode {
             }
 
             //Arm and Pinion
-            double scissor_power = gamepad2.right_stick_y;
-            double pinion_power = gamepad2.left_stick_y;
+            scissor_power = gamepad2.right_stick_y;
+            pinion_power = gamepad2.left_stick_y;
 
             scissor1.setPower(scissor_power);
             scissor2.setPower(scissor_power);
             pinion.setPower(pinion_power);
+
+            claw_open = gamepad2.left_bumper;
+            claw_close = gamepad2.right_bumper;
+
+            if(claw_open == true) {
+                claw.setPosition(1);
+            } else if(claw_close == true) {
+                claw.setPosition(0);
+            }
+
+            //Foundation Grab and Move
+            foundation_trigger = gamepad2.a;
+            currentState = foundation_trigger;
+            grabbed = false;
+
+            if(currentState != prevState) {
+                if(currentState == true && grabbed == true) {
+                    foundation1.setPosition(1);
+                    foundation2.setPosition(1);
+                    grabbed = false;
+                } else if (currentState == true && grabbed == false) {
+                    foundation1.setPosition(0);
+                    foundation2.setPosition(0);
+                    grabbed = true;
+                }
+                currentState = prevState;
+            }
+
+
+
 
         }
     }
