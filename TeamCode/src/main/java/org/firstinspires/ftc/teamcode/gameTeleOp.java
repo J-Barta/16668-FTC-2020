@@ -40,7 +40,7 @@ public class gameTeleOp extends LinearOpMode {
 
         claw = hardwareMap.get(Servo.class, "claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
-        foundation2 = hardwareMap.get(Servo.class, "foundation1");
+        foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -123,22 +123,33 @@ public class gameTeleOp extends LinearOpMode {
             }
 
             //Foundation Grab and Move
+            /*
             foundation_trigger = gamepad2.a;
             currentState = foundation_trigger;
             grabbed = false;
 
             if(currentState != prevState) {
                 if(currentState == true && grabbed == true) {
-                    foundation1.setPosition(1);
+                    foundation1.setPosition(0);
                     foundation2.setPosition(1);
                     grabbed = false;
                 } else if (currentState == true && grabbed == false) {
                     foundation1.setPosition(0);
-                    foundation2.setPosition(0);
+                    foundation2.setPosition(1);
                     grabbed = true;
                 }
                 currentState = prevState;
             }
+            */
+             boolean grab = gamepad2.a;
+             boolean release = gamepad2.b;
+             if(grab == true) {
+                 foundation1.setPosition(1);
+                 foundation2.setPosition(1);
+             } else if (release == true) {
+                 foundation1.setPosition(0);
+                 foundation2.setPosition(0);
+             }
 
 
 
