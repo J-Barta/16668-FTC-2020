@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 @TeleOp(name="Game TeleOp")
 public class gameTeleOp extends LinearOpMode {
@@ -20,12 +21,10 @@ public class gameTeleOp extends LinearOpMode {
     public Servo foundation1;
     public Servo foundation2;
 
-    boolean prevState = false;
+    public TouchSensor scissor_touch;
+
     boolean claw_open;
     boolean claw_close;
-    boolean foundation_trigger;
-    boolean currentState;
-    boolean grabbed;
     double scissor_power;
     double pinion_power;
 
@@ -41,6 +40,8 @@ public class gameTeleOp extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
+
+        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -107,6 +108,9 @@ public class gameTeleOp extends LinearOpMode {
 
             //Arm and Pinion
             scissor_power = gamepad2.right_stick_y;
+            if(scissor_touch.isPressed() == true && scissor_power > 0) {
+                scissor_power = 0;
+            }
             pinion_power = gamepad2.left_stick_y;
 
             scissor1.setPower(scissor_power);
@@ -123,24 +127,6 @@ public class gameTeleOp extends LinearOpMode {
             }
 
             //Foundation Grab and Move
-            /*
-            foundation_trigger = gamepad2.a;
-            currentState = foundation_trigger;
-            grabbed = false;
-
-            if(currentState != prevState) {
-                if(currentState == true && grabbed == true) {
-                    foundation1.setPosition(0);
-                    foundation2.setPosition(1);
-                    grabbed = false;
-                } else if (currentState == true && grabbed == false) {
-                    foundation1.setPosition(0);
-                    foundation2.setPosition(1);
-                    grabbed = true;
-                }
-                currentState = prevState;
-            }
-            */
              boolean grab = gamepad2.a;
              boolean release = gamepad2.b;
              if(grab == true) {
@@ -150,9 +136,6 @@ public class gameTeleOp extends LinearOpMode {
                  foundation1.setPosition(0);
                  foundation2.setPosition(0);
              }
-
-
-
 
         }
     }
