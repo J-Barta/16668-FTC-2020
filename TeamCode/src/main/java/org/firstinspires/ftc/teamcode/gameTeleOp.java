@@ -51,10 +51,10 @@ public class gameTeleOp extends LinearOpMode {
         scissor2.setDirection(DcMotorSimple.Direction.REVERSE);
         pinion.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         scissor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -83,28 +83,15 @@ public class gameTeleOp extends LinearOpMode {
 
 
             if(diagX >0 && diagY <0 ) {
-                left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 setPowers(0, -0.5,-0.5,0);
             } else if(diagX >0 && diagY >0) {
-                left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 setPowers(0.5, 0,0,0.5);
             } else if(diagX <0 && diagY <0 ) {
-                right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 setPowers(-0.5, 0,0,-0.5);
             } else if(diagX <0 && diagY >0) {
-                left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 setPowers(0, 0.5,0.5,0);
             }
-            if(diagX==0 && diagY==0) {
-                right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            }
+
 
             //Arm and Pinion
             scissor_power = gamepad2.right_stick_y;

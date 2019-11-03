@@ -52,10 +52,7 @@ public class mecanumAuton extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
-            claw.setPosition(-1);
-            sleep(5000);
-
-
+           
 
         }
 
