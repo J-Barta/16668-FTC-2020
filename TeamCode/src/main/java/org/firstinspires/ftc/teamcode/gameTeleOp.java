@@ -64,8 +64,12 @@ public class gameTeleOp extends LinearOpMode {
 
         while(opModeIsActive()) {
             //Drive Code
-            double xValue = gamepad1.left_stick_x;
-            double yValue = gamepad1.left_stick_y;
+            double xValue = gamepad1.left_stick_x * 0.25;
+            double yValue = gamepad1.left_stick_y * 0.25;
+            if(gamepad1.right_bumper) {
+                xValue *= 4;
+                yValue *= 4;
+            }
             double leftPower =  yValue - xValue;
             double rightPower = yValue + xValue;
             setPowers(rightPower, rightPower, leftPower, leftPower);
