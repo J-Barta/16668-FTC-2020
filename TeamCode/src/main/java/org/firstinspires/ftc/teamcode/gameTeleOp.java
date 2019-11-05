@@ -74,8 +74,13 @@ public class gameTeleOp extends LinearOpMode {
             double rightPower = yValue + xValue;
             setPowers(rightPower, rightPower, leftPower, leftPower);
 
-            double strafeRight = gamepad1.right_trigger;
-            double strafeLeft = gamepad1.left_trigger;
+            double strafeRight = gamepad1.right_trigger*0.35;
+            double strafeLeft = gamepad1.left_trigger*0.35;
+
+            if(gamepad1.right_bumper) {
+                strafeLeft *=(20/7);
+                strafeRight *=(20/7);
+            }
 
             if(strafeRight > strafeLeft) {
                 setPowers(strafeRight, -strafeRight, -strafeRight, strafeRight);
