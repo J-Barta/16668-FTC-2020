@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -12,14 +14,26 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="mecanumAuton")
-public class mecanumAuton extends LinearOpMode {
+@Autonomous(name="Quarry Auton")
+public class quarryAuton extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
     public DcMotor left_back;
+    public DcMotor scissor1;
+    public DcMotor scissor2;
+    public DcMotor pinion;
+
+
     public BNO055IMU imu;
+    public DistanceSensor stone_distance;
+    public ColorSensor left_color;
+    public ColorSensor right_color;
+
     public Servo claw;
+    public Servo foundation1;
+    public Servo foundation2;
+
     double current;
 
 
@@ -31,7 +45,13 @@ public class mecanumAuton extends LinearOpMode {
         right_back = hardwareMap.dcMotor.get("right_back");
         left_front = hardwareMap.dcMotor.get("left_front");
         left_back = hardwareMap.dcMotor.get("left_back");
+        scissor1 = hardwareMap.dcMotor.get("scissor1");
+        scissor2 = hardwareMap.dcMotor.get("scissor2");
+        pinion = hardwareMap.dcMotor.get("pinion");
+
         claw = hardwareMap.servo.get("claw");
+        foundation1 = hardwareMap.get(Servo.class, "foundation1");
+        foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
 
 
@@ -45,10 +65,26 @@ public class mecanumAuton extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
+        stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
+        left_color = hardwareMap.get(ColorSensor.class, "left_color");
+        right_color = hardwareMap.get(ColorSensor.class, "right_color");
 
-        right_front.setDirection(DcMotorSimple.Direction.REVERSE);
-        right_back.setDirection(DcMotorSimple.Direction.REVERSE);
-        left_front.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        right_front.setDirection(DcMotorSimple.Direction.FORWARD);
+        right_back.setDirection(DcMotorSimple.Direction.FORWARD);
+        left_front.setDirection(DcMotorSimple.Direction.REVERSE);
+        left_back.setDirection(DcMotorSimple.Direction.REVERSE);
+        scissor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        scissor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        pinion.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        scissor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
         if (opModeIsActive()) {

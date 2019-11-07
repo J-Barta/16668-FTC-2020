@@ -43,6 +43,8 @@ public class gameTeleOp extends LinearOpMode {
 
         scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
 
+
+
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
         left_front.setDirection(DcMotorSimple.Direction.REVERSE);
