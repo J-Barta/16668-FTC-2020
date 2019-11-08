@@ -12,10 +12,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Quarry Auton")
-public class quarryAuton extends LinearOpMode {
+@Autonomous(name="Quarry Auton Stone Middle")
+public class quarryAutonStone2 extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -89,10 +90,23 @@ public class quarryAuton extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
 
+            driveStraight(-0.25, 600);
+            distanceDrive(-0.125, 50);
+
+
+
 
         }
 
 
+    }
+
+    public void distanceDrive(double power, double distanceTo) {
+        setPowers(power, power, power ,power);
+        while(stone_distance.getDistance(DistanceUnit.MM) >= 75) {
+
+        }
+        setPowers(0,0,0,0);
     }
 
 

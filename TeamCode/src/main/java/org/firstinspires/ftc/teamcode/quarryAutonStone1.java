@@ -12,10 +12,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Build Auton")
-public class buildAuton extends LinearOpMode {
+@Autonomous(name="Quarry Auton Stone Left")
+public class quarryAutonStone1 extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -36,6 +37,8 @@ public class buildAuton extends LinearOpMode {
 
     double current;
 
+    BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
 
 
 
@@ -53,14 +56,11 @@ public class buildAuton extends LinearOpMode {
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
-
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
         parameters.mode                = BNO055IMU.SensorMode.IMU;
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled      = false;
+        
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -88,25 +88,63 @@ public class buildAuton extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
-
-
-
+            claw.setPosition(1);
+            driveStraight(-0.25, 600);
+            distanceDrive(-0.125, 75);
+            moveArm(-1,1);
+            claw.setPosition(0);
+            sleep(500);
+            moveArm(1, 1);
+            driveStraight(0.25, 100);
+            turn(0.25, 45);
+            driveStraight(-0.25, 920);
+            claw.setPosition(1);
+            sleep(500);
+            strafe(0.5, 2);
+            driveStraight(0.25, 1940);
+            turn(-0.25,45);
 
         }
 
 
     }
+    public void moveArm(double power, double revolutions) {
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setPower(power);
+        if(power < 0) {
+            while(pinion.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
+                sleep(5);
+            }
+        } else if (power > 0) {
+            while(pinion.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
+                sleep(5);
+            }
+        }
+
+        pinion.setPower(0);
+    }
+
+    public void distanceDrive(double power, double distanceTo) {
+        setPowers(power, power, power ,power);
+        while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo && opModeIsActive()) {
+
+        }
+        setPowers(0,0,0,0);
+    }
 
 
     public void turn(double power, double degrees) {
-        Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        imu.initialize(parameters);
+        Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES);
         setPowers(-power, -power, power, power);
 
         if(power > 0) {
             current = turn.firstAngle*-1;
             while (current <= degrees) {
                 sleep(5);
-                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES);
                 current = turn.firstAngle * -1;
                 if (opModeIsActive() == false) {
                     break;
@@ -116,7 +154,7 @@ public class buildAuton extends LinearOpMode {
             current = turn.firstAngle;
             while(current <= degrees) {
                 sleep(5);
-                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
                 if (opModeIsActive() == false) {
                     break;
