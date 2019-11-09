@@ -86,9 +86,22 @@ public class buildAuton extends LinearOpMode {
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        foundation1.setPosition(0);
+        foundation2.setPosition(0);
+
         waitForStart();
         if (opModeIsActive()) {
-
+            strafe(-0.5, 1);
+            driveStraight(0.25,850);
+            foundation1.setPosition(1);
+            foundation2.setPosition(1);
+            sleep(500);
+            turn(0.25, 90);
+            strafeAndSetArm();
+            foundation1.setPosition(0);
+            foundation2.setPosition(0);
+            sleep(500);
+            //strafe(0.5, 5);
 
 
 
@@ -97,17 +110,49 @@ public class buildAuton extends LinearOpMode {
 
     }
 
+    public void strafeAndSetArm() {
+        double encoderCounts = 3*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(-1);
+        setPowers(0.25, -0.25, -0.25, 0.25);
+        encoderCounts = encoderCounts;
+        while (right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+            sleep(5);
+            boolean done = false;
+            if(pinion.getCurrentPosition() < -288*1) {
+                pinion.setPower(0);
+                done = true;
+            }
+            if(done) {
+                boolean first = true;
+                double startTime = 0;
+                if(first) {
+                    first = false;
+                    startTime = getRuntime();
+                }
+                pinion.setPower(1);
+                if(getRuntime()-startTime >= 1 && startTime != 0) {
+                    pinion.setPower(0);
+                }
 
+        }
+        }
+
+        setPowers(0, 0, 0, 0);
+    }
     public void turn(double power, double degrees) {
         Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         setPowers(-power, -power, power, power);
 
         if(power > 0) {
-            current = turn.firstAngle*-1;
+            current = turn.firstAngle;
             while (current <= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                current = turn.firstAngle * -1;
+                current = turn.firstAngle;
                 if (opModeIsActive() == false) {
                     break;
                 }

@@ -92,12 +92,38 @@ public class quarryAutonStone3 extends LinearOpMode {
 
             driveStraight(-0.25, 600);
             distanceDrive(-0.125, 50);
-
-
+            senseAndGrab();
+            sleep(10000);
+            /*
+            while(opModeIsActive()) {
+                telemetry.addData("left", "r:" + left_color.red() + " g:" + left_color.green() + " b:" + left_color.blue());
+                telemetry.addData("right", "r:" + right_color.red() + " g:" + right_color.green() + " b:" + right_color.blue());
+                telemetry.update();
+            }
+            */
 
 
         }
 
+    }
+    public void senseAndGrab () {
+        double flip = 0;
+        double difference = left_color.green() - right_color.green();
+        flip = difference;
+        if(difference < 0) {
+            flip = difference *-1;
+        }
+        if(flip > 400) {
+            if(difference > 0) {
+                telemetry.addData("", "left");
+            }else if( difference <0) {
+                telemetry.addData("", "right");
+            }
+        } else {
+            telemetry.addData("", "middle");
+        }
+        telemetry.addData("", flip);
+        telemetry.update();
 
     }
 

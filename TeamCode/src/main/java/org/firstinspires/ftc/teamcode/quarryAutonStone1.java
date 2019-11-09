@@ -95,11 +95,11 @@ public class quarryAutonStone1 extends LinearOpMode {
             claw.setPosition(0);
             sleep(500);
             driveStraight(0.25, 100);
-            turn(0.25, 45);
-            driveStraight(-0.25, 920);
+            turn(0.25, 90);
+            driveStraight(-0.5, 920);
             strafeAndRelease();
-            driveStraight(0.25, 1940);
-            turn(-0.25, 45);
+            driveStraight(0.35, 1940);
+            turn(-0.25, 0);
 
 
         }
@@ -113,12 +113,12 @@ public class quarryAutonStone1 extends LinearOpMode {
         useEncoder();
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        pinion.setPower(-1);
+        pinion.setPower(1);
         setPowers(-0.5, 0.5, 0.5, -0.5);
         claw.setPosition(1);
         //right subroutine
         while (right_front.getCurrentPosition() > counts && opModeIsActive()) {
-            if(pinion.getCurrentPosition() > -288*0.5) {
+            if(pinion.getCurrentPosition() > 288*0.5) {
                 pinion.setPower(0);
             }
             sleep(5);
@@ -153,30 +153,31 @@ public class quarryAutonStone1 extends LinearOpMode {
 
 
     public void turn(double power, double degrees) {
-
-        imu.initialize(parameters);
         Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES);
         setPowers(-power, -power, power, power);
 
         if(power > 0) {
-            current = turn.firstAngle*-1;
+            current = turn.firstAngle;
             while (current <= degrees) {
                 sleep(5);
-                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES);
-                current = turn.firstAngle * -1;
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle;
                 if (opModeIsActive() == false) {
                     break;
                 }
+                telemetry.addData("z", turn.firstAngle);
+                telemetry.update();
             }
         } else if(power <0) {
             current = turn.firstAngle;
             while(current <= degrees) {
                 sleep(5);
-                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
                 if (opModeIsActive() == false) {
                     break;
                 }
+
             }
         }
         setBrakeBehavior();
