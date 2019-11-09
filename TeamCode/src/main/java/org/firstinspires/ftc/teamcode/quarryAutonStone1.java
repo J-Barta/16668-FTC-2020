@@ -60,7 +60,7 @@ public class quarryAutonStone1 extends LinearOpMode {
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled      = false;
-        
+
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -91,22 +91,40 @@ public class quarryAutonStone1 extends LinearOpMode {
             claw.setPosition(1);
             driveStraight(-0.25, 600);
             distanceDrive(-0.125, 75);
-            moveArm(-1,1);
+            moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(500);
-            moveArm(1, 1);
             driveStraight(0.25, 100);
             turn(0.25, 45);
             driveStraight(-0.25, 920);
-            claw.setPosition(1);
-            sleep(500);
-            strafe(0.5, 2);
+            strafeAndRelease();
             driveStraight(0.25, 1940);
-            turn(-0.25,45);
+            turn(-0.25, 45);
+
 
         }
+    }
+    public void strafeAndRelease() {
+        //Calculate Distance
+        double counts = -2.5 * 537.6;
 
+        //Prep motors to run
+        resetEncoder();
+        useEncoder();
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setPower(-1);
+        setPowers(-0.5, 0.5, 0.5, -0.5);
+        claw.setPosition(1);
+        //right subroutine
+        while (right_front.getCurrentPosition() > counts && opModeIsActive()) {
+            if(pinion.getCurrentPosition() > -288*0.5) {
+                pinion.setPower(0);
+            }
+            sleep(5);
 
+        }
+        setPowers(0, 0, 0, 0);
     }
     public void moveArm(double power, double revolutions) {
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
