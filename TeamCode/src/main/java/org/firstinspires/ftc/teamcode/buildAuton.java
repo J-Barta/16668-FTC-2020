@@ -36,6 +36,10 @@ public class buildAuton extends LinearOpMode {
 
     double current;
 
+    boolean first = true;
+    double startTime = 0;
+    boolean done = false;
+
 
 
 
@@ -121,19 +125,19 @@ public class buildAuton extends LinearOpMode {
         encoderCounts = encoderCounts;
         while (right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
             sleep(5);
-            boolean done = false;
+
             if(pinion.getCurrentPosition() < -288*1) {
                 pinion.setPower(0);
                 done = true;
+                pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
             if(done) {
-                boolean first = true;
-                double startTime = 0;
                 if(first) {
                     first = false;
                     startTime = getRuntime();
+                    pinion.setPower(1);
                 }
-                pinion.setPower(1);
                 if(getRuntime()-startTime >= 1 && startTime != 0) {
                     pinion.setPower(0);
                 }

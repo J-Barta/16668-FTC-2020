@@ -36,6 +36,9 @@ public class quarryAutonStone3 extends LinearOpMode {
     public Servo foundation2;
 
     double current;
+    boolean first = true;
+    double startTime = 0;
+    boolean done = false;
 
 
 
@@ -89,22 +92,52 @@ public class quarryAutonStone3 extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
-
-            driveStraight(-0.25, 600);
-            distanceDrive(-0.125, 50);
+            claw.setPosition(1);
+            driveAndSetArm();
+            distanceDrive(-0.125, 75);
             senseAndGrab();
-            sleep(10000);
-            /*
-            while(opModeIsActive()) {
-                telemetry.addData("left", "r:" + left_color.red() + " g:" + left_color.green() + " b:" + left_color.blue());
-                telemetry.addData("right", "r:" + right_color.red() + " g:" + right_color.green() + " b:" + right_color.blue());
-                telemetry.update();
-            }
-            */
+            sleep(5000);
 
 
         }
 
+    }
+    public void driveAndSetArm() {
+        double encoderCounts = (600/307.867)*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(-1);
+        setPowers(-0.25, -0.25, -0.25, -0.25);
+        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+            sleep(5);
+
+            if(pinion.getCurrentPosition() < -288*1) {
+                pinion.setPower(0);
+                done = true;
+                pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            if(done) {
+
+                if(first) {
+                    first = false;
+                    startTime = getRuntime();
+                    pinion.setPower(1);
+                }
+
+                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
+
+                    pinion.setPower(0);
+                }
+                telemetry.addData("", getRuntime()-startTime);
+                telemetry.update();
+
+            }
+        }
+
+        setPowers(0, 0, 0, 0);
     }
     public void senseAndGrab () {
         double flip = 0;
@@ -120,7 +153,11 @@ public class quarryAutonStone3 extends LinearOpMode {
                 telemetry.addData("", "right");
             }
         } else {
-            telemetry.addData("", "middle");
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.25, 90);
+            
         }
         telemetry.addData("", flip);
         telemetry.update();
@@ -129,7 +166,7 @@ public class quarryAutonStone3 extends LinearOpMode {
 
     public void distanceDrive(double power, double distanceTo) {
         setPowers(power, power, power ,power);
-        while(stone_distance.getDistance(DistanceUnit.MM) >= 75) {
+        while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo) {
 
         }
         setPowers(0,0,0,0);
@@ -141,11 +178,11 @@ public class quarryAutonStone3 extends LinearOpMode {
         setPowers(-power, -power, power, power);
 
         if(power > 0) {
-            current = turn.firstAngle*-1;
+            current = turn.firstAngle;
             while (current <= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                current = turn.firstAngle * -1;
+                current = turn.firstAngle;
                 if (opModeIsActive() == false) {
                     break;
                 }
