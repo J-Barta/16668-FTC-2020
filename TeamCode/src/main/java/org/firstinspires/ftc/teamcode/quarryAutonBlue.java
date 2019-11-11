@@ -160,7 +160,6 @@ public class quarryAutonBlue extends LinearOpMode {
                 sleep(500);
                 driveStraight(0.25, 200);
                 moveArm(1, 0.5);
-
             }else if( difference <0) {
                 strafe(0.4, 1);
                 moveArm(-1, 0.5);
@@ -168,10 +167,10 @@ public class quarryAutonBlue extends LinearOpMode {
                 sleep(500);
                 driveStraight(0.25, 100);
                 turn(0.125, 85);
-                driveStraight(-0.5, 870);
+                driveStraight(-0.5, 920);
                 claw.setPosition(1);
                 sleep(500);
-                driveStraight(0.25, 200);
+                driveStraight(0.25, 250);
                 moveArm(1, 0.5);
             }
         } else {
