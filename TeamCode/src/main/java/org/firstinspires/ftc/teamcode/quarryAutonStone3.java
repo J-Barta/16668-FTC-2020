@@ -153,15 +153,36 @@ public class quarryAutonStone3 extends LinearOpMode {
                 telemetry.addData("", "right");
             }
         } else {
+            moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(500);
             driveStraight(0.25, 100);
-            turn(0.25, 90);
-            
+            turn(0.125, 85);
+            driveStraight(-0.25, 1160);
+            claw.setPosition(1);
+            sleep(500);
+
+
         }
         telemetry.addData("", flip);
         telemetry.update();
 
+    }
+    public void moveArm(double power, double revolutions) {
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setPower(power);
+        if(power < 0) {
+            while(pinion.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
+                sleep(5);
+            }
+        } else if (power > 0) {
+            while(pinion.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
+                sleep(5);
+            }
+        }
+
+        pinion.setPower(0);
     }
 
     public void distanceDrive(double power, double distanceTo) {
