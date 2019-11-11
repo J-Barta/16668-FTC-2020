@@ -20,6 +20,7 @@ public class gameTeleOp extends LinearOpMode {
     public Servo claw;
     public Servo foundation1;
     public Servo foundation2;
+    public Servo capstone;
 
     public TouchSensor scissor_touch;
 
@@ -40,6 +41,7 @@ public class gameTeleOp extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
+        capstone = hardwareMap.get(Servo.class, "capstone");
 
         scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
 
@@ -125,8 +127,8 @@ public class gameTeleOp extends LinearOpMode {
             }
 
             //Foundation Grab and Move
-             boolean grab = gamepad2.a;
-             boolean release = gamepad2.b;
+             boolean grab = gamepad2.dpad_down;
+             boolean release = gamepad2.dpad_up;
              if(grab == true) {
                  foundation1.setPosition(1);
                  foundation2.setPosition(1);
@@ -134,6 +136,14 @@ public class gameTeleOp extends LinearOpMode {
                  foundation1.setPosition(0);
                  foundation2.setPosition(0);
              }
+
+            boolean deposit = gamepad2.a;
+            boolean retract = gamepad2.b;
+            if(deposit == true) {
+                capstone.setPosition(1);
+            } else if (retract == true) {
+                capstone.setPosition(0);
+            }
 
         }
     }

@@ -15,8 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Quarry Auton Stone Right")
-public class quarryAutonStone3 extends LinearOpMode {
+@Autonomous(name="Quarry Auton Blue")
+public class quarryAutonBlue extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -152,13 +152,14 @@ public class quarryAutonStone3 extends LinearOpMode {
                 moveArm(-1, 2);
                 claw.setPosition(0);
                 sleep(500);
-                driveStraight(0.25, 100);
+                moveArm(1, 1.5);
+                driveStraight(0.25, 25);
                 turn(0.125, 85);
                 driveStraight(-0.5, 1300);
                 claw.setPosition(1);
                 sleep(500);
                 driveStraight(0.25, 200);
-                moveArm(1, 2);
+                moveArm(1, 0.5);
 
             }else if( difference <0) {
                 strafe(0.4, 1);
