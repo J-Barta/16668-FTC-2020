@@ -146,11 +146,32 @@ public class quarryAutonStone3 extends LinearOpMode {
         if(difference < 0) {
             flip = difference *-1;
         }
-        if(flip > 400) {
+        if(flip > 200) {
             if(difference > 0) {
-                telemetry.addData("", "left");
+                strafe(-0.4, 1);
+                moveArm(-1, 2);
+                claw.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 100);
+                turn(0.125, 85);
+                driveStraight(-0.5, 1300);
+                claw.setPosition(1);
+                sleep(500);
+                driveStraight(0.25, 200);
+                moveArm(1, 2);
+
             }else if( difference <0) {
-                telemetry.addData("", "right");
+                strafe(0.4, 1);
+                moveArm(-1, 0.5);
+                claw.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 100);
+                turn(0.125, 85);
+                driveStraight(-0.5, 870);
+                claw.setPosition(1);
+                sleep(500);
+                driveStraight(0.25, 200);
+                moveArm(1, 0.5);
             }
         } else {
             moveArm(-1, 0.5);
@@ -161,6 +182,8 @@ public class quarryAutonStone3 extends LinearOpMode {
             driveStraight(-0.25, 1160);
             claw.setPosition(1);
             sleep(500);
+            driveStraight(0.25, 200);
+            moveArm(1, 0.5);
 
 
         }

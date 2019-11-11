@@ -88,6 +88,8 @@ public class quarryAutonStone2 extends LinearOpMode {
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
+        driveStraight(-0.25, 600);
+        distanceDrive(-0.125, 75);
         while (opModeIsActive()) {
             telemetry.addData("left", "r:" + left_color.red() + " g:" + left_color.green() + " b:" + left_color.blue());
             telemetry.addData("right", "r:" + right_color.red() + " g:" + right_color.green() + " b:" + right_color.blue());
