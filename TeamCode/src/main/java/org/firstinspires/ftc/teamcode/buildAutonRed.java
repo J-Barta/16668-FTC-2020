@@ -108,7 +108,7 @@ public class buildAutonRed extends LinearOpMode {
             foundation2.setPosition(0);
             sleep(500);
             driveStraight(0.25, 200);
-            strafe(0.5, 1);
+            strafe(0.5, 2);
             driveAndSetArm();
 
         }
