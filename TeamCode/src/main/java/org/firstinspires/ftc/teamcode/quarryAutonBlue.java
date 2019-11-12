@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -140,40 +142,42 @@ public class quarryAutonBlue extends LinearOpMode {
         setPowers(0, 0, 0, 0);
     }
     public void senseAndGrab () {
-        double flip = 0;
+        /*double flip = 0;
         double difference = left_color.green() - right_color.green();
         flip = difference;
         if(difference < 0) {
             flip = difference *-1;
-        }
-        if(flip > 200) {
-            if(difference > 0) {
-                strafe(-0.4, 1);
-                moveArm(-1, 2);
-                claw.setPosition(0);
-                sleep(500);
-                moveArm(1, 1.5);
-                driveStraight(0.25, 25);
-                turn(0.125, 85);
-                driveStraight(-0.5, 1300);
-                claw.setPosition(1);
-                sleep(500);
-                driveStraight(0.25, 200);
-                moveArm(1, 0.5);
-            }else if( difference <0) {
-                strafe(0.4, 1);
-                moveArm(-1, 0.5);
-                claw.setPosition(0);
-                sleep(500);
-                driveStraight(0.25, 100);
-                turn(0.125, 85);
-                driveStraight(-0.5, 920);
-                claw.setPosition(1);
-                sleep(500);
-                driveStraight(0.25, 250);
-                moveArm(1, 0.5);
-            }
-        } else {
+        }*/
+        float[] hsv_left = new float[3];
+        float[] hsv_right = new float[3];
+        Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
+        Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
+        if(hsv_left[0] <85 && hsv_left[0] > 40 && hsv_right[0] >85) {
+            strafe(-0.4, 1);
+            moveArm(-1, 2);
+            claw.setPosition(0);
+            sleep(500);
+            moveArm(1, 1.5);
+            driveStraight(0.25, 25);
+            turn(0.125, 85);
+            driveStraight(-0.5, 1300);
+            claw.setPosition(1);
+            sleep(500);
+            driveStraight(0.25, 200);
+            moveArm(1, 0.5);
+        }else if(hsv_right[0] <85 && hsv_right[0] > 40 && hsv_left[0] >85) {
+            strafe(0.4, 1);
+            moveArm(-1, 0.5);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.125, 85);
+            driveStraight(-0.5, 920);
+            claw.setPosition(1);
+            sleep(500);
+            driveStraight(0.25, 250);
+            moveArm(1, 0.5);
+        }else {
             moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(500);
@@ -184,11 +188,7 @@ public class quarryAutonBlue extends LinearOpMode {
             sleep(500);
             driveStraight(0.25, 200);
             moveArm(1, 0.5);
-
-
         }
-        telemetry.addData("", flip);
-        telemetry.update();
 
     }
     public void moveArm(double power, double revolutions) {

@@ -4,7 +4,6 @@ import android.graphics.Color;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,9 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Quarry Auton Stone Middle")
-
-public class quarryAutonStone2 extends LinearOpMode {
+@Autonomous(name="Quarry Auton Blue 2 Stones")
+public class quarryAutonBlue2Stones extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -40,6 +38,9 @@ public class quarryAutonStone2 extends LinearOpMode {
     public Servo foundation2;
 
     double current;
+    boolean first = true;
+    double startTime = 0;
+    boolean done = false;
 
 
 
@@ -92,28 +93,176 @@ public class quarryAutonStone2 extends LinearOpMode {
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
-        driveStraight(-0.25, 600);
-        distanceDrive(-0.125, 75);
-        while (opModeIsActive()) {
-            float[] hsv_left = new float[3];
-            float[] hsv_right = new float[3];
-            Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
-            Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
-            telemetry.addData("left", "h:" + hsv_left[0] + " s:" + hsv_left[1] + " v:" + hsv_left[2]);
-            telemetry.addData("right", "h:" + hsv_right[0] + " s:" + hsv_left[1] + " v:" + hsv_left[2]);
-            telemetry.update();
-
-
+        if (opModeIsActive()) {
+            claw.setPosition(1);
+            driveAndSetArm();
+            distanceDrive(-0.125, 75);
+            senseAndGrab();
+            sleep(5000);
 
 
         }
 
+    }
+    public void driveAndSetArm() {
+        double encoderCounts = (600/307.867)*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(-1);
+        setPowers(-0.25, -0.25, -0.25, -0.25);
+        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+            sleep(5);
 
+            if(pinion.getCurrentPosition() < -288*1) {
+                pinion.setPower(0);
+                done = true;
+                pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            if(done) {
+
+                if(first) {
+                    first = false;
+                    startTime = getRuntime();
+                    pinion.setPower(1);
+                }
+
+                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
+
+                    pinion.setPower(0);
+                }
+                telemetry.addData("", getRuntime()-startTime);
+                telemetry.update();
+
+            }
+        }
+
+        setPowers(0, 0, 0, 0);
+    }
+    public void senseAndGrab () {
+        /*double flip = 0;
+        double difference = left_color.green() - right_color.green();
+        flip = difference;
+        if(difference < 0) {
+            flip = difference *-1;
+        }*/
+        float[] hsv_left = new float[3];
+        float[] hsv_right = new float[3];
+        Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
+        Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
+        if(hsv_left[0] <85 && hsv_left[0] > 40 && hsv_right[0] >85) {
+            strafe(-0.4, 1);
+            moveArm(-1, 2);
+            claw.setPosition(0);
+            sleep(500);
+            moveArm(1, 1.5);
+            driveStraight(0.25, 25);
+            turn(0.125, 85);
+            driveStraight(-0.5, 1500);
+            claw.setPosition(1);
+            sleep(500);
+            driveAndRetract(1007);
+            turn(-0.125, 0);
+            driveStraight(-0.25, 100);
+            moveArm(-1, 0.5);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.125, 85);
+            driveStraight(-0.5,920);
+            claw.setPosition(1);
+            sleep(500);
+            driveStraight(0.25, 250);
+            moveArm(1, 0.5);
+        }else if(hsv_right[0] <85 && hsv_right[0] > 40 && hsv_left[0] >85) {
+            strafe(0.4, 0.8);
+            moveArm(-1, 0.5);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.125, 85);
+            driveStraight(-0.5, 920);
+            claw.setPosition(1);
+            sleep(500);
+            driveAndRetract(1547);
+            turn(-0.125, 0);
+            driveStraight(-0.25, 100);
+            moveArm(-1, 0.5);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.125, 85);
+            driveStraight(-0.5,1597);
+            claw.setPosition(1);
+            sleep(500);
+            driveStraight(0.25, 250);
+            moveArm(1, 0.5);
+        }else {
+            moveArm(-1, 0.5);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.125, 85);
+            driveStraight(-0.5, 1160);
+            claw.setPosition(1);
+            sleep(500);
+            driveAndRetract(1750);
+            turn(-0.125, 0);
+            driveStraight(-0.25, 100);
+            moveArm(-1, 0.5);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 100);
+            turn(0.125, 85);
+            driveStraight(-0.5,1800);
+            claw.setPosition(1);
+            sleep(500);
+            driveStraight(0.25, 250);
+            moveArm(1, 0.5);
+        }
+
+    }
+    public void driveAndRetract( double mm) {
+        double encoderCounts = (mm/307.867)*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(1);
+        setPowers(0.5, 0.5, 0.5, 0.5);
+        while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+            sleep(5);
+            if(pinion.getCurrentPosition() > 288*0.5) {
+                pinion.setPower(0);
+            }
+        }
+
+        setPowers(0,0,0,0);
+
+
+    }
+    public void moveArm(double power, double revolutions) {
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setPower(power);
+        if(power < 0) {
+            while(pinion.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
+                sleep(5);
+            }
+        } else if (power > 0) {
+            while(pinion.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
+                sleep(5);
+            }
+        }
+
+        pinion.setPower(0);
     }
 
     public void distanceDrive(double power, double distanceTo) {
         setPowers(power, power, power ,power);
-        while(stone_distance.getDistance(DistanceUnit.MM) >= 75) {
+        while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo && opModeIsActive()) {
 
         }
         setPowers(0,0,0,0);
@@ -125,18 +274,18 @@ public class quarryAutonStone2 extends LinearOpMode {
         setPowers(-power, -power, power, power);
 
         if(power > 0) {
-            current = turn.firstAngle*-1;
+            current = turn.firstAngle;
             while (current <= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                current = turn.firstAngle * -1;
+                current = turn.firstAngle;
                 if (opModeIsActive() == false) {
                     break;
                 }
             }
         } else if(power <0) {
             current = turn.firstAngle;
-            while(current <= degrees) {
+            while(current >= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
