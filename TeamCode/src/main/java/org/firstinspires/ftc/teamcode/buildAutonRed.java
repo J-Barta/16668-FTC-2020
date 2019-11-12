@@ -14,8 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Build Auton")
-public class buildAuton extends LinearOpMode {
+@Autonomous(name="Red Build Auton")
+public class buildAutonRed extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -90,40 +90,42 @@ public class buildAuton extends LinearOpMode {
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        foundation1.setPosition(0);
-        foundation2.setPosition(0);
+
 
         waitForStart();
         if (opModeIsActive()) {
-            strafe(-0.5, 1);
-            driveStraight(0.25,850);
+            foundation1.setPosition(0);
+            foundation2.setPosition(0);
+            strafe(0.5, 0.5);
+            driveStraight(0.5,650);
+            driveStraight(0.25, 200);
             foundation1.setPosition(1);
             foundation2.setPosition(1);
             sleep(500);
-            turn(0.25, 90);
-            strafeAndSetArm();
+            driveStraight(-0.25, 950);
+            turn(-0.5, -90);
             foundation1.setPosition(0);
             foundation2.setPosition(0);
             sleep(500);
-            //strafe(0.5, 5);
-
-
+            driveStraight(0.25, 200);
+            strafe(0.5, 1);
+            driveAndSetArm();
 
         }
 
 
     }
 
-    public void strafeAndSetArm() {
-        double encoderCounts = 3*537.6;
+    public void driveAndSetArm() {
+        double encoderCounts = (1000/307.867)*537.6;
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         resetEncoder();
         useEncoder();
         pinion.setPower(-1);
-        setPowers(0.25, -0.25, -0.25, 0.25);
+        setPowers(-0.25, -0.25, -0.25, -0.25);
         encoderCounts = encoderCounts;
-        while (right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
             sleep(5);
 
             if(pinion.getCurrentPosition() < -288*1) {
@@ -138,7 +140,7 @@ public class buildAuton extends LinearOpMode {
                     startTime = getRuntime();
                     pinion.setPower(1);
                 }
-                if(getRuntime()-startTime >= 1 && startTime != 0) {
+                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
                     pinion.setPower(0);
                 }
 
@@ -163,7 +165,7 @@ public class buildAuton extends LinearOpMode {
             }
         } else if(power <0) {
             current = turn.firstAngle;
-            while(current <= degrees) {
+            while(current >= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;

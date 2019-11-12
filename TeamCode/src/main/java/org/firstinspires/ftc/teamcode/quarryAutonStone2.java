@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name="Quarry Auton Stone Middle")
-
+@Disabled
 public class quarryAutonStone2 extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
