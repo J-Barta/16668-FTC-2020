@@ -211,9 +211,10 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             turn(0.125, 0);
             driveStraight(-0.25, 100);
             distanceDrive(-0.25, 75);
-            moveArm(-1, 0.5);
+            moveArm(-1, 2);
             claw.setPosition(0);
             sleep(500);
+            moveArm(1,1.5);
             driveStraight(0.25, 100);
             turn(-0.125, -90);
             driveStraight(-0.5,1800);
