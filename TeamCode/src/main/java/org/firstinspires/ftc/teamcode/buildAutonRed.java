@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.text.method.Touch;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -34,6 +37,8 @@ public class buildAutonRed extends LinearOpMode {
     public Servo foundation1;
     public Servo foundation2;
 
+    public TouchSensor scissor_touch;
+
     double current;
 
     boolean first = true;
@@ -57,6 +62,12 @@ public class buildAutonRed extends LinearOpMode {
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
+        stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
+        left_color = hardwareMap.get(ColorSensor.class, "left_color");
+        right_color = hardwareMap.get(ColorSensor.class, "right_color");
+
+        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
+
 
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -69,9 +80,7 @@ public class buildAutonRed extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
-        left_color = hardwareMap.get(ColorSensor.class, "left_color");
-        right_color = hardwareMap.get(ColorSensor.class, "right_color");
+
 
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -108,12 +117,64 @@ public class buildAutonRed extends LinearOpMode {
             foundation2.setPosition(0);
             sleep(500);
             driveStraight(0.25, 200);
+            lift(-1,3);
+            moveArm(-1,2);
+            lift(1,3);
+            pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pinion.setPower(1);
+            double startTime = getRuntime();
+            while(getRuntime()-startTime <= 0.5 &&opModeIsActive()) {
+                sleep(5);
+            }
+            pinion.setPower(0);
             strafe(0.5, 2);
-            driveAndSetArm();
-
+            driveStraight(-0.25, 1000);
+        }
+    }
+    public void moveArm(double power, double revolutions) {
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setPower(power);
+        if(power < 0) {
+            while(pinion.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
+                sleep(5);
+            }
+        } else if (power > 0) {
+            while(pinion.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
+                sleep(5);
+            }
         }
 
+        pinion.setPower(0);
+    }
+    public void lift(double power, double revolutions) {
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor1.setPower(power);
+        scissor2.setPower(power);
+        if(power < 0) {
+            while(scissor1.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
+                sleep(5);
+            }
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        } else if (power > 0) {
+            while(scissor1.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
+                sleep(5);
+                if(scissor_touch.isPressed()) {
+                    scissor1.setPower(0);
+                    scissor1.setPower(0);
+                    break;
+                }
+            }
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        }
 
+        pinion.setPower(0);
     }
 
     public void driveAndSetArm() {

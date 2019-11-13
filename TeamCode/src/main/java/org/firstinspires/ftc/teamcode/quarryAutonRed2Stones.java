@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -37,12 +38,13 @@ public class quarryAutonRed2Stones extends LinearOpMode {
     public Servo foundation1;
     public Servo foundation2;
 
+    public TouchSensor scissor_touch;
+
     double current;
     boolean first = true;
     double startTime = 0;
     boolean done = false;
-
-
+    boolean done2 = false;
 
 
     @Override
@@ -59,21 +61,21 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
-
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
-        parameters.mode                = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
         stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
         left_color = hardwareMap.get(ColorSensor.class, "left_color");
         right_color = hardwareMap.get(ColorSensor.class, "right_color");
+
+        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
 
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -101,50 +103,59 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         }
 
     }
+
     public void driveAndSetArm() {
-        double encoderCounts = (600/307.867)*537.6;
+        double encoderCounts = (600 / 307.867) * 537.6;
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         resetEncoder();
         useEncoder();
         pinion.setPower(-1);
         setPowers(-0.25, -0.25, -0.25, -0.25);
         while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
             sleep(5);
-
-            if(pinion.getCurrentPosition() < -288*1) {
+            if (pinion.getCurrentPosition() < -288 * 1) {
                 pinion.setPower(0);
                 done = true;
                 pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-            if(done) {
+            if (done) {
+                scissor1.setPower(1);
+                scissor2.setPower(1);
 
-                if(first) {
-                    first = false;
-                    startTime = getRuntime();
-                    pinion.setPower(1);
+                if (scissor_touch.isPressed() == true) {
+                    scissor1.setPower(0);
+                    scissor2.setPower(0);
+                    done2 = true;
                 }
-
-                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
-
-                    pinion.setPower(0);
-                }
-                telemetry.addData("", getRuntime()-startTime);
-                telemetry.update();
 
             }
         }
+        if (done2) {
 
-        setPowers(0, 0, 0, 0);
+            if (first) {
+                first = false;
+                startTime = getRuntime();
+                pinion.setPower(1);
+            }
+
+            if (getRuntime() - startTime >= 0.5 && startTime != 0) {
+
+                pinion.setPower(0);
+            }
+            telemetry.addData("", getRuntime() - startTime);
+            telemetry.update();
+
+        }
+        setPowers(0,0,0,0);
     }
+
     public void senseAndGrab () {
-        /*double flip = 0;
-        double difference = left_color.green() - right_color.green();
-        flip = difference;
-        if(difference < 0) {
-            flip = difference *-1;
-        }*/
         float[] hsv_left = new float[3];
         float[] hsv_right = new float[3];
         Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
