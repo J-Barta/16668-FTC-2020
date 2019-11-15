@@ -98,31 +98,28 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
+
             claw.setPosition(1);
             driveAndSetArm();
             distanceDrive(-0.125, 75);
             senseAndGrab();
             sleep(5000);
-
-
         }
 
     }
     public void driveAndSetArm() {
-        double encoderCounts = (600 / 307.867) * 537.6;
+        double encoderCounts = (600/307.867) * 537.6;
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         resetEncoder();
         useEncoder();
         pinion.setPower(-1);
         setPowers(-0.25, -0.25, -0.25, -0.25);
         while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
             sleep(5);
-            if (pinion.getCurrentPosition() < -288 * 1) {
+            if (pinion.getCurrentPosition() < -288*1) {
                 pinion.setPower(0);
                 done = true;
                 pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -137,24 +134,23 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
                     scissor2.setPower(0);
                     done2 = true;
                 }
-
             }
-        }
-        if (done2) {
+            if (done2) {
+                if (first) {
+                    first = false;
+                    startTime = getRuntime();
+                    pinion.setPower(1);
+                }
 
-            if (first) {
-                first = false;
-                startTime = getRuntime();
-                pinion.setPower(1);
+                if (getRuntime() - startTime >= 0.5 && startTime != 0) {
+
+                    pinion.setPower(0);
+                }
+                telemetry.addData("", getRuntime() - startTime);
+                telemetry.update();
             }
-
-            if (getRuntime() - startTime >= 0.5 && startTime != 0) {
-
-                pinion.setPower(0);
-            }
-            telemetry.addData("", getRuntime() - startTime);
+            telemetry.addData("", pinion.getCurrentPosition());
             telemetry.update();
-
         }
         setPowers(0,0,0,0);
     }
