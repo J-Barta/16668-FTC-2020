@@ -42,6 +42,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
 
     double current;
     boolean first = true;
+    boolean firstArm = true;
     double startTime = 0;
     boolean done = false;
     boolean done2 = false;
@@ -125,9 +126,11 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                 pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
             if (done) {
-                scissor1.setPower(1);
-                scissor2.setPower(1);
-
+                if(firstArm) {
+                    scissor1.setPower(1);
+                    scissor2.setPower(1);
+                    firstArm = false;
+                }
                 if (scissor_touch.isPressed() == true) {
                     scissor1.setPower(0);
                     scissor2.setPower(0);
@@ -160,6 +163,9 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         float[] hsv_right = new float[3];
         Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
         Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
+        telemetry.addData("hue left", hsv_left[0] + ' ' + hsv_left[1] + " " + hsv_left[2]);
+        telemetry.addData("hue right", hsv_right[0] + " "  + hsv_right[1] + " " + hsv_right[2]);
+        telemetry.update();
         if(hsv_left[0] <85 && hsv_left[0] > 40 && hsv_right[0] >85) {
             strafe(-0.4, 0.8);
             moveArm(-1, 2);
