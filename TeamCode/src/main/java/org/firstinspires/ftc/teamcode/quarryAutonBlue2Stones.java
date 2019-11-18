@@ -164,7 +164,7 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
         float[] hsv_right = new float[3];
         Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
         Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
-        if(hsv_left[0] <125 && hsv_left[0] > 100 && hsv_right[0] >130 && forfeit == false) {
+        if(hsv_left[0]-hsv_right[0] <-8 && forfeit == false) {
             strafe(-0.4, 1);
             moveArm(-1, 2);
             claw.setPosition(0);
@@ -188,24 +188,24 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
             sleep(600);
             driveStraight(0.25, 250);
             moveArm(1, 0.5);
-        }else if(hsv_right[0] <125 && hsv_right[0] > 100 && hsv_left[0] >130 && forfeit== false) {
+        }else if(hsv_left[0]-hsv_right[0] > 8&& forfeit== false) {
             strafe(0.4, 0.8);
             moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(600);
             driveStraight(0.25, 100);
-            turn(0.125, 85);
+            turn(0.25, 85);
             driveStraight(-0.5, 920);
             claw.setPosition(1);
             sleep(600);
             driveAndArm(1497, 0.5, 0.5, 1);
-            turn(-0.125, 0);
+            turn(-0.25, 0);
             driveStraight(-0.25, 100);
             moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(600);
             driveStraight(0.25, 100);
-            turn(0.125, 85);
+            turn(0.25, 85);
             driveStraight(-0.5,1597);
             claw.setPosition(1);
             sleep(600);
@@ -213,27 +213,25 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
             moveArm(1, 0.5);
         }else{
             if(forfeit == false) {
+                strafe(0.4, 0.2);
                 moveArm(-1, 1.5);
                 claw.setPosition(0);
                 sleep(600);
-                driveAndArm(100, 0.25, 1, 1);
-                /*
                 moveArm(1, 1);
                 driveStraight(0.25, 100);
-                 */
-                turn(0.125, 85);
+                turn(0.25, 85);
                 driveStraight(-0.5, 1160);
                 claw.setPosition(1);
                 sleep(600);
                 driveAndArm(1750,0.5,0.5,1);
-                turn(-0.125, 0);
-                //driveStraight(-0.25, 100);
-                moveArm(-1, 2);
+                turn(-0.25, 0);
+                distanceDrive(-0.125, 75);
+                moveArm(-1, 1);
                 claw.setPosition(0);
                 sleep(600);
-                moveArm(1, 1.5);
+                moveArm(1, 0.5);
                 driveStraight(0.25, 100);
-                turn(0.125, 85);
+                turn(0.25, 85);
                 driveStraight(-0.5, 1800);
                 claw.setPosition(1);
                 sleep(600);
@@ -257,6 +255,8 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
                 if(pinion.getCurrentPosition() >= 288*armRotations) {
                     pinion.setPower(0);
                 }
+                telemetry.addData("", pinion.getCurrentPosition());
+                telemetry.update();
             }
         } else if (wheelPower > 0 && armPower <0) {
             while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
