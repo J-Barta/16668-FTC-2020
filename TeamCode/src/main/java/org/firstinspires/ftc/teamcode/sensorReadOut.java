@@ -51,10 +51,10 @@ public class sensorReadOut extends LinearOpMode {
             Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
             Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
-            telemetry.addData("left color", "hue: " + hsv_left[0] + " saturation: " + hsv_left[1] + " value: " + hsv_left[2]);
-            telemetry.addData("left color", "red: " + left_color.red() + " green: " + left_color.green() + " blue: " + left_color.blue());
-            telemetry.addData("right color", "hue: " + hsv_right[0] + " saturation:" + hsv_right[1] + " value:" + hsv_right[2]);
-            telemetry.addData("right color", "red: " + right_color.red() + " green: " + right_color.green() + " blue: " + right_color.blue());
+            telemetry.addData("left color", "h: " + hsv_left[0] + " s: " + hsv_left[1] + " v: " + hsv_left[2]);
+            telemetry.addData("left color", "r: " + left_color.red() + " g: " + left_color.green() + " b: " + left_color.blue());
+            telemetry.addData("right color", "h: " + hsv_right[0] + " s:" + hsv_right[1] + " v:" + hsv_right[2]);
+            telemetry.addData("right color", "r: " + right_color.red() + " g: " + right_color.green() + " b: " + right_color.blue());
             telemetry.addData( "distance", stone_distance.getDistance(DistanceUnit.MM));
             telemetry.addData("touch sensor", scissor_touch.isPressed());
             telemetry.addData("imu", " x: "+turn.firstAngle + " y: " + turn.secondAngle + " z: "+ turn.thirdAngle);
