@@ -91,6 +91,7 @@ public class gameTeleOp extends LinearOpMode {
             } else if(strafeLeft > strafeRight) {
                 setPowers(-strafeLeft, strafeLeft, strafeLeft, -strafeLeft);
             }
+            /*
             double diagX = gamepad1.right_stick_x;
             double diagY = gamepad1.right_stick_y;
 
@@ -104,6 +105,8 @@ public class gameTeleOp extends LinearOpMode {
             } else if(diagX <0 && diagY >0) {
                 setPowers(0, 0.5,0.5,0);
             }
+
+             */
 
 
             //Arm and Pinion
