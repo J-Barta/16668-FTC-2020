@@ -165,6 +165,7 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
         Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
         Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
         if(hsv_left[0]-hsv_right[0] <-8 && forfeit == false) {
+            //Right
             strafe(-0.4, 1);
             distanceDrive(-0.25, 75);
             if(forfeit==false){
@@ -195,6 +196,7 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
                 }
             }
         }else if(hsv_left[0]-hsv_right[0] > 8&& forfeit== false) {
+            //Left
             strafe(0.4, 0.6);
             moveArm(-1, 0.5);
             claw.setPosition(0);
@@ -222,6 +224,7 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
             }
         }else{
             if(forfeit == false) {
+                //Middle
                 strafe(0.4, 0.2);
                 moveArm(-1, 1.5);
                 claw.setPosition(0);

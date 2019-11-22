@@ -168,6 +168,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         telemetry.addData("hue right", hsv_right[0] + " "  + hsv_right[1] + " " + hsv_right[2]);
         telemetry.update();
         if(hsv_left[0]-hsv_right[0] < -8 && forfeit == false) {
+            //Right
             strafe(-0.4, 0.8);
             moveArm(-1, 2);
             claw.setPosition(0);
@@ -175,25 +176,28 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             moveArm(1, 1.5);
             driveStraight(0.25, 25);
             turn(-0.25, -85);
-            driveStraight(-0.75, 920);
+            driveStraight(-0.5, 920);
             claw.setPosition(1);
             sleep(500);
-            driveAndRetract(1547, 0.5);
+            driveAndRetract(1537, 0.5);
             turn(0.25, 0);
             driveStraight(-0.25, 100);
             distanceDrive(-0.25, 75);
-            moveArm(-1, 0.5);
-            claw.setPosition(0);
-            sleep(500);
-            driveStraight(0.25, 150);
-            turn(-0.25, -85);
-            driveStraight(-0.75,1597);
-            claw.setPosition(1);
-            sleep(500);
-            driveStraight(0.25, 350);
-            moveArm(1, 0.5);
+            if(forfeit == false) {
+                moveArm(-1, 0.5);
+                claw.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 150);
+                turn(-0.25, -85);
+                driveStraight(-0.5,1597);
+                claw.setPosition(1);
+                sleep(500);
+                driveStraight(0.25, 350);
+                moveArm(1, 0.5);
+            }
         }else if(hsv_left[0]-hsv_right[0] > 8 && forfeit == false) {
-            strafe(0.4, 0.8);
+            //Left
+            strafe(0.4, 0.6);
             moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(500);
@@ -202,27 +206,32 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             driveStraight(-0.5, 1500);
             claw.setPosition(1);
             sleep(500);
-            driveAndRetract(1007, 0.5);
+            driveAndRetract(1770, 0.5);
             turn(0.25, 0);
             driveStraight(-0.25, 100);
-            moveArm(-1, 1);
-            claw.setPosition(0);
-            sleep(500);
-            driveStraight(0.25, 100);
-            turn(-0.25, -85);
-            driveStraight(-0.5,920);
-            claw.setPosition(1);
-            sleep(500);
-            driveStraight(0.25, 250);
-            moveArm(1, 1);
-
-        }else {
+            distanceDrive(-0.25, 75);
             if(forfeit == false) {
                 moveArm(-1, 1);
                 claw.setPosition(0);
                 sleep(500);
                 driveStraight(0.25, 100);
-                turn(-0.25, -90);
+                turn(-0.25, -85);
+                driveStraight(-0.5,1600);
+                claw.setPosition(1);
+                sleep(500);
+                driveStraight(0.25, 250);
+                moveArm(1, 1);
+            }
+
+
+        }else {
+            if(forfeit == false) {
+                //Middle
+                moveArm(-1, 1);
+                claw.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 100);
+                turn(-0.25, -85);
                 driveStraight(-0.5, 1160);
                 claw.setPosition(1);
                 sleep(500);
@@ -230,21 +239,21 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                 turn(0.25, 0);
                 driveStraight(-0.25, 100);
                 distanceDrive(-0.25, 75);
-                moveArm(-1, 2);
-                claw.setPosition(0);
-                sleep(500);
-                moveArm(1,1.5);
-                driveStraight(0.25, 100);
-                turn(-0.25, -90);
-                driveStraight(-0.5,1800);
-                claw.setPosition(1);
-                sleep(500);
-                driveStraight(0.25, 250);
-                moveArm(1, 0.5);
+                if(forfeit== false) {
+                    moveArm(-1, 2);
+                    claw.setPosition(0);
+                    sleep(500);
+                    moveArm(1,1.5);
+                    driveStraight(0.25, 100);
+                    turn(-0.25, -85);
+                    driveStraight(-0.5,1800);
+                    claw.setPosition(1);
+                    sleep(500);
+                    driveStraight(0.25, 250);
+                    moveArm(1, 0.5);
+                }
             }
-
         }
-
     }
     public void driveAndRetract( double mm, double revolutions) {
         double encoderCounts = (mm/307.867)*537.6;
@@ -287,7 +296,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         useEncoder();
         setPowers(power, power, power ,power);
         while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo && opModeIsActive()) {
-            if(right_front.getCurrentPosition() <= -537.6*5) {
+            if(right_front.getCurrentPosition() <= -537.6*2.5) {
                 forfeit = true;
                 break;
             }
@@ -356,13 +365,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             setBrakeBehavior();
             setPowers(0,0,0,0);
         }
-
-
-
-
     }
-
-
 
     public void driveStraight(double Power, double millimeters) {
         double encoderCounts = (millimeters/307.867)*537.6;
