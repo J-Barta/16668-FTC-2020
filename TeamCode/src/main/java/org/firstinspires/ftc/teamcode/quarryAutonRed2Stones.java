@@ -180,7 +180,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             claw.setPosition(1);
             sleep(500);
             driveAndRetract(1537, 0.5);
-            turn(0.25, 0);
+            turn(0.25, -5);
             driveStraight(-0.25, 100);
             distanceDrive(-0.25, 75);
             if(forfeit == false) {
@@ -197,10 +197,12 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             }
         }else if(hsv_left[0]-hsv_right[0] > 8 && forfeit == false) {
             //Left
+            driveStraight(0.25, 25);
             strafe(0.4, 0.6);
-            moveArm(-1, 0.5);
+            moveArm(-1, 1.0);
             claw.setPosition(0);
             sleep(500);
+            moveArm(1, 0.5);
             driveStraight(0.25, 100);
             turn(-0.25, -85);
             driveStraight(-0.5, 1500);
@@ -236,7 +238,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                 claw.setPosition(1);
                 sleep(500);
                 driveAndRetract(1750, 1);
-                turn(0.25, -4);
+                turn(0.25, -5);
                 driveStraight(-0.25, 100);
                 distanceDrive(-0.25, 75);
                 if(forfeit== false) {
