@@ -134,7 +134,7 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                     scissor2.setPower(1);
                     firstArm = false;
                 }
-                if (scissor_touch.isPressed() == true) {
+                if (scissor_touch.isPressed()) {
                     scissor1.setPower(0);
                     scissor2.setPower(0);
                     done2 = true;
@@ -159,33 +159,7 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         }
         setPowers(0,0,0,0);
     }
-    public void driveAndLift(double power, double mm, double scissorRevolutions) {
-        double encoderCounts = (mm/307.867) * 537.6;
-        double scissorCounts = scissorRevolutions*288;
-        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        resetEncoder();
-        useEncoder();
-        setPowers(-0.25, -0.25, -0.25, -0.25);
-        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
-            sleep(5);
-            if(firstScissor) {
-                scissor1.setPower(-1);
-                scissor2.setPower(-1);
-                firstScissor = false;
-            }
-            if (scissor1.getCurrentPosition() < -scissorCounts) {
-                scissor1.setPower(0);
-                scissor2.setPower(0);
-            }
-            telemetry.addData("", scissor1.getCurrentPosition());
-            telemetry.update();
-        }
-        setPowers(0,0,0,0);
-        firstScissor = true;
-    }
+
     public void senseAndGrab () {
         float[] hsv_left = new float[3];
         float[] hsv_right = new float[3];
@@ -252,19 +226,38 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         }else{
             if(forfeit == false) {
                 //Middle
-                moveArm(-1, 1.5);
+
+                moveArm(-1, 1);
                 claw.setPosition(0);
                 sleep(600);
-                moveArm(1, 1);
                 driveStraight(0.4, 100);
                 turn(0.25, 85);
-                driveStraight(-0.65, 1160);
-                driveAndLift(0.5, 750, 2);
+                foundation1.setPosition(0);
+                foundation2.setPosition(0);
+                driveStraight(-0.65, 1060);
+                driveAndLift(-0.5, 750, 2.5);
                 turn(-0.25, 0);
-                driveStraight(-0.25, 100);
-                /*
+                driveStraight(-0.25, 200);
                 claw.setPosition(1);
-                sleep(600);
+                sleep(300);
+                reverseAndLower(0.25, 100);
+                turn180(0.25);
+                strafe(-0.5, 0.75);
+                driveStraight(0.25, 150);
+                foundation1.setPosition(1);
+                foundation2.setPosition(1);
+                sleep(500);
+                driveStraight(-0.25, 800);
+                delayedTurn(0.5, -90);
+                foundation1.setPosition(0);
+                foundation2.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 200);
+                driveStraight(-0.25, 50);
+                strafe(0.5, 1.25);
+                driveStraight(-0.5, 1000);
+                moveArm(1,1);
+                /*
                 driveAndArm(1750,0.5,0.5,1);
                 turn(-0.25, 0);
                 distanceDrive(-0.125, 75);
@@ -288,6 +281,95 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
             }
         }
 
+    }
+    public void turn180(double power) {
+        Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setPowers(-power, -power, power, power);
+        //scissor1.setPower(1);
+        //scissor2.setPower(1);
+        if(power > 0) {
+            current = turn.firstAngle;
+            while (current >= -10 && opModeIsActive()) {
+                sleep(5);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle;
+                /*if(scissor_touch.isPressed()) {
+                    scissor1.setPower(0);
+                    scissor2.setPower(0);
+                }
+                 */
+            }
+        } else if(power <0) {
+            current = turn.firstAngle;
+            while(current < 0 && opModeIsActive()) {
+                sleep(5);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle;
+                /*if(scissor_touch.isPressed()) {
+                    scissor1.setPower(0);
+                    scissor2.setPower(0);
+                }
+
+                 */
+            }
+        }
+        setBrakeBehavior();
+        setPowers(0,0,0,0);
+    }
+    public void driveAndLift(double power, double mm, double scissorRevolutions) {
+        double encoderCounts = (mm/307.867) * 537.6;
+        double scissorCounts = scissorRevolutions*288;
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        setPowers(power,power,power,power);
+        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+            sleep(5);
+            if(firstScissor) {
+                scissor1.setPower(-1);
+                scissor2.setPower(-1);
+                firstScissor = false;
+            }
+            if (scissor1.getCurrentPosition() < -scissorCounts) {
+                scissor1.setPower(0);
+                scissor2.setPower(0);
+            }
+            claw.setPosition(0);
+        }
+        setPowers(0,0,0,0);
+        while(scissor1.getCurrentPosition() > -scissorCounts) {
+
+        }
+        scissor1.setPower(0);
+        scissor2.setPower(0);
+        firstScissor = true;
+    }
+    public void reverseAndLower(double power, double mm) {
+        double encoderCounts = (mm/307.867) * 537.6;
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        setPowers(power, power, power, power);
+        scissor1.setPower(1);
+        scissor2.setPower(1);
+        while(scissor_touch.isPressed() == false && opModeIsActive()) {
+            if(right_front.getCurrentPosition() >= encoderCounts) {
+                setPowers(0,0,0,0);
+            }
+        }
+
+        scissor1.setPower(0);
+        scissor2.setPower(0);
     }
     public void driveAndArm(double mm, double wheelPower, double armRotations, double armPower) {
         double encoderCounts = (mm/307.867)*537.6;
@@ -366,6 +448,34 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         setPowers(-power, -power, power, power);
 
+        if(power > 0) {
+            current = turn.firstAngle;
+            while (current <= degrees) {
+                sleep(5);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle;
+                if (opModeIsActive() == false) {
+                    break;
+                }
+            }
+        } else if(power <0) {
+            current = turn.firstAngle;
+            while(current >= degrees) {
+                sleep(5);
+                turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                current = turn.firstAngle;
+                if (opModeIsActive() == false) {
+                    break;
+                }
+            }
+        }
+        setBrakeBehavior();
+        setPowers(0,0,0,0);
+    }
+    public void delayedTurn(double power, double degrees) {
+        Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        setPowers(-power, -power, power, power);
+        sleep(500);
         if(power > 0) {
             current = turn.firstAngle;
             while (current <= degrees) {
