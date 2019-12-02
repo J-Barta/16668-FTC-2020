@@ -166,34 +166,31 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
         Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
         if(hsv_left[0]-hsv_right[0] <-8 && forfeit == false) {
             //Right
-            strafe(-0.4, 1);
+            strafe(-0.4, 0.8);
             distanceDrive(-0.25, 75);
             if(forfeit==false){
                 moveArm(-1, 1);
                 claw.setPosition(0);
                 sleep(600);
-                moveArm(1, 0.5);
                 driveStraight(0.25, 100);
-                turn(0.25, 85);
+                turn(0.25, 80);
                 driveStraight(-0.5, 1500);
                 claw.setPosition(1);
+                sleep(300);
+                strafe(0.4,0.25);
+                driveAndArm(1750, 0.5, 1, 1);
+                driveStraight(0.25, 250);
+                driveStraight(-0.25, 235);
+                turn(-0.25, -88);
+                strafe(0.4, 1.5);
+                claw.setPosition(0);
                 sleep(600);
-                driveAndArm(1750, 0.5, 0.5, 1);
-                turn(-0.25, 0);
-                distanceDrive(-0.25,75);
-                if(forfeit == false) {
-                    moveArm(-1, 1);
-                    claw.setPosition(0);
-                    sleep(600);
-                    moveArm(1, 0.5);
-                    driveStraight(0.25, 100);
-                    turn(0.25, 85);
-                    driveStraight(-0.5,1620);
-                    claw.setPosition(1);
-                    sleep(600);
-                    driveStraight(0.25, 250);
-                    moveArm(1, 0.5);
-                }
+                strafe(-0.4, 1.25);
+                turn(0.25, 85);
+                driveStraight(-0.5,1620);
+                claw.setPosition(1);
+                sleep(300);
+                driveStraight(0.25, 250);
             }
         }else if(hsv_left[0]-hsv_right[0] > 8&& forfeit== false) {
             //Left

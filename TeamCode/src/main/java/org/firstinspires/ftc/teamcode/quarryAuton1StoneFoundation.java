@@ -119,7 +119,8 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         resetEncoder();
         useEncoder();
         pinion.setPower(-1);
-        setPowers(-0.25, -0.25, -0.25, -0.25);
+        double firstPower = -0.275;
+        setPowers(firstPower, firstPower, firstPower, firstPower);
         while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
             sleep(5);
             if (pinion.getCurrentPosition() < -288*1) {
@@ -217,7 +218,6 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 moveArm(1, 0.5);
                 driveStraight(0.25, 100);
                 turn(0.25, 84);
-                driveStraight(-0.5,1600);
                 claw.setPosition(1);
                 sleep(600);
                 driveStraight(0.25, 250);
@@ -226,57 +226,35 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         }else{
             if(forfeit == false) {
                 //Middle
-
-                moveArm(-1, 1);
                 claw.setPosition(0);
                 sleep(600);
                 driveStraight(0.4, 100);
-                turn(0.25, 85);
+                turn(0.25, 81);
                 foundation1.setPosition(0);
                 foundation2.setPosition(0);
-                driveStraight(-0.65, 1060);
-                driveAndLift(-0.5, 750, 2.5);
-                turn(-0.25, 0);
-                driveStraight(-0.25, 200);
+                driveAndArm(1290, -0.65, 1, -1);
+                driveAndLift(-0.65, 750, 2.5);
+                turn(-0.35, 2);
+                driveStraight(-0.5, 175);
+                sleep(200);
                 claw.setPosition(1);
                 sleep(300);
-                reverseAndLower(0.25, 100);
-                turn180(0.25);
-                strafe(-0.5, 0.75);
-                driveStraight(0.25, 150);
+                reverseAndLower(0.5, 100);
+                turn180(0.35);
+                driveStraight(0.35, 250);
                 foundation1.setPosition(1);
                 foundation2.setPosition(1);
                 sleep(500);
-                driveStraight(-0.25, 800);
+                driveAndArm(800, -0.45, 1, 1);
                 delayedTurn(0.5, -90);
                 foundation1.setPosition(0);
                 foundation2.setPosition(0);
                 sleep(500);
-                driveStraight(0.25, 200);
-                driveStraight(-0.25, 50);
-                strafe(0.5, 1.25);
+                driveStraight(0.25, 150);
+                driveStraight(-0.35, 50);
+                strafe(-0.5, 1);
+                strafe(0.5, 2);
                 driveStraight(-0.5, 1000);
-                moveArm(1,1);
-                /*
-                driveAndArm(1750,0.5,0.5,1);
-                turn(-0.25, 0);
-                distanceDrive(-0.125, 75);
-                if(forfeit== false) {
-                    moveArm(-1, 1);
-                    claw.setPosition(0);
-                    sleep(600);
-                    moveArm(1, 0.5);
-                    driveStraight(0.25, 100);
-                    turn(0.25, 85);
-                    driveStraight(-0.5, 1800);
-                    claw.setPosition(1);
-                    sleep(600);
-                    driveStraight(0.25, 250);
-                    moveArm(1, 0.5);
-
-                }
-
-                 */
 
             }
         }
@@ -293,28 +271,22 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         //scissor2.setPower(1);
         if(power > 0) {
             current = turn.firstAngle;
-            while (current >= -10 && opModeIsActive()) {
-                sleep(5);
+            while (current >= -20 && opModeIsActive()) {
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
-                /*if(scissor_touch.isPressed()) {
-                    scissor1.setPower(0);
-                    scissor2.setPower(0);
-                }
-                 */
+                scissorCheck();
+                telemetry.addData("", turn.firstAngle);
+                telemetry.update();
             }
         } else if(power <0) {
             current = turn.firstAngle;
             while(current < 0 && opModeIsActive()) {
-                sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
-                /*if(scissor_touch.isPressed()) {
-                    scissor1.setPower(0);
-                    scissor2.setPower(0);
-                }
+                scissorCheck();
+                telemetry.addData("", turn.firstAngle);
+                telemetry.update();
 
-                 */
             }
         }
         setBrakeBehavior();
@@ -341,11 +313,12 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 scissor1.setPower(0);
                 scissor2.setPower(0);
             }
-            claw.setPosition(0);
+            scissorCheck();
         }
         setPowers(0,0,0,0);
         while(scissor1.getCurrentPosition() > -scissorCounts) {
-
+            sleep(5);
+            scissorCheck();
         }
         scissor1.setPower(0);
         scissor2.setPower(0);
@@ -366,6 +339,8 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
             if(right_front.getCurrentPosition() >= encoderCounts) {
                 setPowers(0,0,0,0);
             }
+            scissorCheck();
+
         }
 
         scissor1.setPower(0);
@@ -385,8 +360,8 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 if(pinion.getCurrentPosition() >= 288*armRotations) {
                     pinion.setPower(0);
                 }
-                telemetry.addData("", pinion.getCurrentPosition());
-                telemetry.update();
+                scissorCheck();
+
             }
         } else if (wheelPower > 0 && armPower <0) {
             while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
@@ -394,6 +369,7 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 if(pinion.getCurrentPosition() <= -288*armRotations) {
                     pinion.setPower(0);
                 }
+                scissorCheck();
             }
         } else if(wheelPower < 0 && armPower >0) {
             while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
@@ -401,6 +377,7 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 if (pinion.getCurrentPosition() >= 288 * armRotations) {
                     pinion.setPower(0);
                 }
+                scissorCheck();
             }
 
         } else if(wheelPower < 0 && armPower < 0) {
@@ -409,6 +386,8 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 if(pinion.getCurrentPosition() <= -288*armRotations) {
                     pinion.setPower(0);
                 }
+                scissorCheck();
+
             }
         }
         setPowers(0,0,0,0);
@@ -420,10 +399,14 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         if(power < 0) {
             while(pinion.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
                 sleep(5);
+                scissorCheck();
+
             }
         } else if (power > 0) {
             while(pinion.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
                 sleep(5);
+                scissorCheck();
+
             }
         }
 
@@ -439,6 +422,7 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
                 forfeit=true;
                 break;
             }
+            scissorCheck();
         }
         setPowers(0,0,0,0);
     }
@@ -450,23 +434,19 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
 
         if(power > 0) {
             current = turn.firstAngle;
-            while (current <= degrees) {
+            while (current <= degrees && opModeIsActive()) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
-                if (opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
         } else if(power <0) {
             current = turn.firstAngle;
-            while(current >= degrees) {
+            while(current >= degrees && opModeIsActive()) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
-                if (opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
         }
         setBrakeBehavior();
@@ -478,23 +458,19 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         sleep(500);
         if(power > 0) {
             current = turn.firstAngle;
-            while (current <= degrees) {
+            while (current <= degrees && opModeIsActive()) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
-                if (opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
-        } else if(power <0) {
+        } else if(power <0 && opModeIsActive()) {
             current = turn.firstAngle;
             while(current >= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
-                if (opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
         }
         setBrakeBehavior();
@@ -512,22 +488,18 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         if(power < 0) {
 
             //Left subroutine
-            while(right_front.getCurrentPosition() < counts) {
+            while(right_front.getCurrentPosition() < counts && opModeIsActive()) {
                 sleep(5);
-                if(opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
             setBrakeBehavior();
             setPowers(0,0,0,0);
         } else if (power > 0) {
             counts = counts * -1;
             //right subroutine
-            while(right_front.getCurrentPosition()> counts) {
+            while(right_front.getCurrentPosition()> counts && opModeIsActive()) {
                 sleep(5);
-                if(opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
             setBrakeBehavior();
             setPowers(0,0,0,0);
@@ -547,20 +519,16 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         setPowers(Power, Power, Power, Power);
         if(Power < 0) {
             encoderCounts = encoderCounts *-1;
-            while(right_front.getCurrentPosition() > encoderCounts) {
+            while(right_front.getCurrentPosition() > encoderCounts && opModeIsActive()) {
                 sleep(5);
-                if(opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
             setBrakeBehavior();
             setPowers(0,0,0,0);
         } else if(Power >0) {
-            while(right_front.getCurrentPosition() < encoderCounts) {
+            while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
                 sleep(5);
-                if(opModeIsActive() == false) {
-                    break;
-                }
+                scissorCheck();
             }
             setBrakeBehavior();
             setPowers(0,0,0,0);
@@ -594,5 +562,11 @@ public class quarryAuton1StoneFoundation extends LinearOpMode {
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void scissorCheck() {
+        if(scissor1.getPower() > 0 && scissor_touch.isPressed()) {
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        }
     }
 }
