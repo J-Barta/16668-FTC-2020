@@ -173,7 +173,7 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
                 claw.setPosition(0);
                 sleep(600);
                 driveStraight(0.25, 100);
-                turn(0.25, 80);
+                turn(0.25, 83);
                 driveStraight(-0.5, 1500);
                 claw.setPosition(1);
                 sleep(300);

@@ -73,8 +73,8 @@ public class gameTeleOp extends LinearOpMode {
             double xValue = gamepad1.left_stick_x * 0.25;
             double yValue = gamepad1.left_stick_y * 0.25;
             if(gamepad1.right_bumper) {
-                xValue *= 2;
-                yValue *= 2;
+                xValue *= 2.4;
+                yValue *= 2.4;
             }
             double leftPower =  yValue - xValue;
             double rightPower = yValue + xValue;
