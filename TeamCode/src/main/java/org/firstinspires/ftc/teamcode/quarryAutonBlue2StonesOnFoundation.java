@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name="Blue Quarry Auton on Foundation")
+@Disabled
 public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
@@ -27,6 +29,7 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
     public DcMotor scissor1;
     public DcMotor scissor2;
     public DcMotor pinion;
+    public DcMotor tape;
 
 
     public BNO055IMU imu;
@@ -61,6 +64,7 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
         scissor1 = hardwareMap.dcMotor.get("scissor1");
         scissor2 = hardwareMap.dcMotor.get("scissor2");
         pinion = hardwareMap.dcMotor.get("pinion");
+        tape = hardwareMap.dcMotor.get("tape");
 
         claw = hardwareMap.servo.get("claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
@@ -90,6 +94,7 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
         scissor1.setDirection(DcMotorSimple.Direction.REVERSE);
         scissor2.setDirection(DcMotorSimple.Direction.REVERSE);
         pinion.setDirection(DcMotorSimple.Direction.REVERSE);
+        tape.setDirection(DcMotorSimple.Direction.FORWARD);
 
         right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -98,6 +103,7 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
         scissor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        tape.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
         if (opModeIsActive()) {
@@ -175,15 +181,15 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
                 sleep(600);
                 driveStraight(0.25, 100);
                 turn(0.25, 85);
-                driveStraight(-0.65, 1400);
-                driveAndLift(-0.125, 300, 3);
+                driveStraight(-0.65, 1200);
+                driveAndLift(-0.125, 400, 2.5);
                 claw.setPosition(1);
                 sleep(300);
                 reverseAndLower(0.25, 350);
                 strafe(0.4,0.25);
                 driveAndArm(1450, 0.75, 1.5, 1);
                 driveStraight(0.25, 350);
-                driveStraight(-0.25, 235);
+                driveStraight(-0.25, 250);
                 turn(-0.3, -88);
                 strafe(0.4, 1.5);
                 pinion.setPower(-1);
@@ -191,15 +197,19 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
                 pinion.setPower(0);
                 claw.setPosition(0);
                 sleep(600);
-                pinion.setPower(1);
-                sleep(250);
-                pinion.setPower(0);
                 strafe(-0.4, 1.25);
                 turn(0.25, 85);
                 driveStraight(-0.75,1620);
                 claw.setPosition(1);
-                sleep(300);
+                sleep(250);
+                /*
                 driveStraight(0.25, 250);
+                pinion.setPower(1);
+                sleep(250);
+                pinion.setPower(0);
+                 */
+                moveTapeandRetract(-1, 24, 0.25);
+
             }
         }else if(hsv_left[0]-hsv_right[0] > 8&& forfeit== false) {
             //Left
@@ -228,8 +238,11 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
                 driveStraight(-0.5,1600);
                 claw.setPosition(1);
                 sleep(600);
+                moveTapeandRetract(-1, 24, 0.25);
+                /*
                 driveStraight(0.25, 250);
                 moveArm(1, 0.5);
+                 */
             }
         }else{
             if(forfeit == false) {
@@ -237,9 +250,8 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
                 moveArm(-1, 1.5);
                 claw.setPosition(0);
                 sleep(600);
-                //moveArm(1, 1);
                 driveStraight(0.25, 100);
-                turn(0.25, 85);
+                turn(0.25, 83);
                 driveStraight(-0.5, 1060);
                 driveAndLift(-0.125, 350, 3);
                 claw.setPosition(1);
@@ -258,12 +270,62 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
                     driveStraight(-0.5, 1800);
                     claw.setPosition(1);
                     sleep(600);
+                    moveTapeandRetract(-1, 24, 0.25);
+                    /*
                     driveStraight(0.25, 250);
                     moveArm(1, 0.5);
+                     */
                 }
 
             }
         }
+
+    }
+    public void moveTape(double power, double in) {
+        double encoderCounts = (in/11.131625) * 288;
+        tape.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tape.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        tape.setPower(power);
+        if(power > 0) {
+            while(tape.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+            }
+        } else if (power < 0 ) {
+            while(tape.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+            }
+        }
+        tape.setPower(0);
+
+    }
+    public void moveTapeandRetract(double power, double in, double pinionTime) {
+        double encoderCounts = (in/11.131625) * 288;
+        tape.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tape.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        pinion.setPower(1);
+        tape.setPower(power);
+        double startTime = getRuntime();
+        if(power > 0) {
+            while(tape.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+                if(getRuntime()-startTime > pinionTime) {
+                    pinion.setPower(0);
+                }
+            }
+        } else if (power < 0 ) {
+            while(tape.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+                if(getRuntime()-startTime > pinionTime) {
+                    pinion.setPower(0);
+                }
+            }
+        }
+        tape.setPower(0);
 
     }
     public void reverseAndLower(double power, double mm) {
@@ -400,7 +462,6 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
         if(power > 0) {
             current = turn.firstAngle;
             while (current <= degrees) {
-                sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
                 if (opModeIsActive() == false) {
@@ -410,7 +471,6 @@ public class quarryAutonBlue2StonesOnFoundation extends LinearOpMode {
         } else if(power <0) {
             current = turn.firstAngle;
             while(current >= degrees) {
-                sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
                 if (opModeIsActive() == false) {

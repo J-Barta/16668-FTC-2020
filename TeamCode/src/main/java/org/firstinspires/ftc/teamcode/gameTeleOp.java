@@ -16,6 +16,7 @@ public class gameTeleOp extends LinearOpMode {
     public DcMotor scissor1;
     public DcMotor scissor2;
     public DcMotor pinion;
+    public DcMotor tape;
 
     public Servo claw;
     public Servo foundation1;
@@ -38,6 +39,8 @@ public class gameTeleOp extends LinearOpMode {
         scissor1 = hardwareMap.dcMotor.get("scissor1");
         scissor2 = hardwareMap.dcMotor.get("scissor2");
         pinion = hardwareMap.dcMotor.get("pinion");
+        tape = hardwareMap.dcMotor.get("tape");
+
 
         claw = hardwareMap.get(Servo.class, "claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
@@ -56,6 +59,7 @@ public class gameTeleOp extends LinearOpMode {
         scissor1.setDirection(DcMotorSimple.Direction.REVERSE);
         scissor2.setDirection(DcMotorSimple.Direction.REVERSE);
         pinion.setDirection(DcMotorSimple.Direction.REVERSE);
+        tape.setDirection(DcMotorSimple.Direction.REVERSE);
 
         right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -64,6 +68,7 @@ public class gameTeleOp extends LinearOpMode {
         scissor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        tape.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         waitForStart();
@@ -156,6 +161,17 @@ public class gameTeleOp extends LinearOpMode {
                  armCapstone.setPosition(1);
              } else if (foldIn) {
                  armCapstone.setPosition(0);
+             }
+
+             //Tape Measure for parking
+             double extendPower = gamepad2.right_trigger;
+             double retractPower = gamepad2.left_trigger;
+             if(retractPower > 0) {
+                 tape.setPower(-retractPower);
+             } else if(extendPower  > 0 && retractPower == 0) {
+                 tape.setPower(extendPower);
+             } else if(extendPower == 0 && retractPower == 0) {
+                 tape.setPower(0);
              }
 
         }
