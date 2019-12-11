@@ -27,6 +27,8 @@ public class quarryAutonRed2Stones extends LinearOpMode {
     public DcMotor scissor1;
     public DcMotor scissor2;
     public DcMotor pinion;
+    public DcMotor tape;
+
 
 
     public BNO055IMU imu;
@@ -58,6 +60,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         scissor1 = hardwareMap.dcMotor.get("scissor1");
         scissor2 = hardwareMap.dcMotor.get("scissor2");
         pinion = hardwareMap.dcMotor.get("pinion");
+        tape = hardwareMap.dcMotor.get("tape");
 
         claw = hardwareMap.servo.get("claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
@@ -140,23 +143,22 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                 }
 
             }
-        }
-        if (done2) {
+            if (done2) {
+                if (first) {
+                    first = false;
+                    startTime = getRuntime();
+                    pinion.setPower(1);
+                }
 
-            if (first) {
-                first = false;
-                startTime = getRuntime();
-                pinion.setPower(1);
+                if (getRuntime() - startTime >= 0.5 && startTime != 0) {
+                    pinion.setPower(0);
+                }
+
             }
-
-            if (getRuntime() - startTime >= 0.5 && startTime != 0) {
-
-                pinion.setPower(0);
-            }
-            telemetry.addData("", getRuntime() - startTime);
-            telemetry.update();
-
+            scissorCheck();
         }
+        scissor1.setPower(0);
+        scissor2.setPower(0);
         setPowers(0,0,0,0);
     }
 
@@ -176,7 +178,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             sleep(500);
             moveArm(1, 1.5);
             driveStraight(0.25, 25);
-            turn(-0.25, -85);
+            turn(-0.25, -83);
             driveStraight(-0.5, 920);
             claw.setPosition(1);
             sleep(500);
@@ -189,12 +191,16 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                 claw.setPosition(0);
                 sleep(500);
                 driveStraight(0.25, 150);
-                turn(-0.25, -85);
+                turn(-0.25, -83);
                 driveStraight(-0.5,1597);
                 claw.setPosition(1);
                 sleep(500);
+                moveTapeandRetract(-1, 24, 0.25);
+                /*
                 driveStraight(0.25, 350);
                 moveArm(1, 0.5);
+                 */
+
             }
         }else if(hsv_left[0]-hsv_right[0] > 8 && forfeit == false) {
             //Left
@@ -204,7 +210,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             claw.setPosition(0);
             sleep(500);
             driveStraight(0.25, 100);
-            turn(-0.25, -85);
+            turn(-0.25, -83);
             driveStraight(-0.5, 1500);
             claw.setPosition(1);
             sleep(500);
@@ -214,18 +220,19 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             turn(0.25, 88);
             strafe(-0.4, 2);
             pinion.setPower(-1);
-            sleep(600);
+            sleep(250);
             pinion.setPower(0);
             claw.setPosition(0);
             sleep(600);
             pinion.setPower(1);
-            sleep(600);
+            sleep(250);
             pinion.setPower(0);
             strafe(0.4, 1.25);
-            turn(-0.25, -85);
+            turn(-0.25, -83);
             driveStraight(-0.5,1620);
             claw.setPosition(1);
             sleep(300);
+            moveTapeandRetract(-1, 24, 0);
             driveStraight(0.25, 250);
 
 
@@ -238,7 +245,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                 claw.setPosition(0);
                 sleep(500);
                 driveStraight(0.25, 100);
-                turn(-0.25, -85);
+                turn(-0.25, -83);
                 driveStraight(-0.5, 1160);
                 claw.setPosition(1);
                 sleep(500);
@@ -252,15 +259,46 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                     sleep(500);
                     moveArm(1,1.5);
                     driveStraight(0.25, 100);
-                    turn(-0.25, -85);
+                    turn(-0.25, -83);
                     driveStraight(-0.5,1800);
                     claw.setPosition(1);
                     sleep(500);
+                    moveTapeandRetract(-1, 24, 0.25);
+                    /*
                     driveStraight(0.25, 250);
                     moveArm(1, 0.5);
+                     */
                 }
             }
         }
+    }
+    public void moveTapeandRetract(double power, double in, double pinionTime) {
+        double encoderCounts = (in/11.131625) * 288;
+        tape.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tape.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        pinion.setPower(1);
+        tape.setPower(power);
+        double startTime = getRuntime();
+        if(power > 0) {
+            while(tape.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+                if(getRuntime()-startTime > pinionTime) {
+                    pinion.setPower(0);
+                }
+            }
+        } else if (power < 0 ) {
+            while(tape.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+                if(getRuntime()-startTime > pinionTime) {
+                    pinion.setPower(0);
+                }
+            }
+        }
+        tape.setPower(0);
+
     }
     public void driveAndArm(double mm, double wheelPower, double armRotations, double armPower) {
         double encoderCounts = (mm/307.867)*537.6;
@@ -470,5 +508,11 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void scissorCheck() {
+        if(scissor1.getPower() > 0 && scissor_touch.isPressed()) {
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        }
     }
 }

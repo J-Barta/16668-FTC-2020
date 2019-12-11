@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name="Sensor Read Out")
-//@Disabled
+@Disabled
 public class sensorReadOut extends LinearOpMode {
 
     public BNO055IMU imu;

@@ -105,9 +105,10 @@ public class buildAutonRed extends LinearOpMode {
         if (opModeIsActive()) {
             foundation1.setPosition(0);
             foundation2.setPosition(0);
+            driveStraight(0.25, 25);
             strafe(0.5, 0.5);
-            driveStraight(0.5,650);
-            driveStraight(0.25, 200);
+            driveStraight(0.5,625);
+            driveStraight(0.25, 250);
             foundation1.setPosition(1);
             foundation2.setPosition(1);
             sleep(500);
@@ -117,20 +118,24 @@ public class buildAutonRed extends LinearOpMode {
             foundation2.setPosition(0);
             sleep(500);
             driveStraight(0.25, 200);
-            lift(-1,3);
-            moveArm(-1,2);
-            lift(1,3);
-            pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            pinion.setPower(1);
-            double startTime = getRuntime();
-            while(getRuntime()-startTime <= 0.5 &&opModeIsActive()) {
-                sleep(5);
-            }
-            pinion.setPower(0);
+            moveArm(-1, 2);
+            lower();
+            moveArm(1, 1.5);
             strafe(0.5, 2);
             driveStraight(-0.25, 1000);
         }
+    }
+    public void lower() {
+        scissor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor1.setPower(1);
+        scissor2.setPower(1);
+        while(scissor_touch.isPressed() == false) {
+            sleep(5);
+            scissorCheck();
+        }
+        scissor1.setPower(0);
+        scissor2.setPower(0);
     }
     public void moveArm(double power, double revolutions) {
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -332,5 +337,11 @@ public class buildAutonRed extends LinearOpMode {
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void scissorCheck() {
+        if(scissor1.getPower() > 0 && scissor_touch.isPressed()) {
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        }
     }
 }

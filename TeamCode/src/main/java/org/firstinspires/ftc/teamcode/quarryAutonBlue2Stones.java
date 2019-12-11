@@ -156,8 +156,6 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
                 telemetry.addData("", getRuntime() - startTime);
                 telemetry.update();
             }
-            telemetry.addData("", pinion.getCurrentPosition());
-            telemetry.update();
         }
         setPowers(0,0,0,0);
     }
