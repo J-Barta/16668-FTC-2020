@@ -169,7 +169,7 @@ public class buildAutonBlue extends LinearOpMode {
         scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         scissor1.setPower(1);
         scissor2.setPower(1);
-        while(scissor_touch.isPressed() == false) {
+        while(scissor_touch.isPressed() == false && opModeIsActive()) {
             sleep(5);
             scissorCheck();
         }

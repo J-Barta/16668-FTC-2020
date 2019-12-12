@@ -48,6 +48,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
     double startTime = 0;
     boolean done = false;
     boolean done2 = false;
+    boolean done3 = false;
     boolean forfeit = false;
 
 
@@ -122,8 +123,11 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         useEncoder();
         pinion.setPower(-1);
         setPowers(-0.25, -0.25, -0.25, -0.25);
-        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+        while (right_front.getCurrentPosition() > -encoderCounts || done3 == false) {
             sleep(5);
+            if(opModeIsActive() == false) {
+                break;
+            }
             if (pinion.getCurrentPosition() < -288 * 1) {
                 pinion.setPower(0);
                 done = true;
@@ -149,11 +153,14 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                     startTime = getRuntime();
                     pinion.setPower(1);
                 }
-
                 if (getRuntime() - startTime >= 0.5 && startTime != 0) {
                     pinion.setPower(0);
+                    done3 = true;
                 }
 
+            }
+            if(right_front.getCurrentPosition() <= -encoderCounts) {
+                setPowers(0,0,0,0);
             }
             scissorCheck();
         }
@@ -215,25 +222,25 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             claw.setPosition(1);
             sleep(500);
             driveAndArm(1770, 0.5, 1, 1);
-            driveStraight(0.25, 250);
-            driveStraight(-0.25, 225);
+            driveStraight(0.25, 300);
+            driveStraight(-0.25, 165);
             turn(0.25, 88);
-            strafe(-0.4, 2);
+            strafe(-0.4, 1.75);
             pinion.setPower(-1);
-            sleep(250);
+            sleep(350);
             pinion.setPower(0);
             claw.setPosition(0);
             sleep(600);
             pinion.setPower(1);
-            sleep(250);
+            sleep(150);
             pinion.setPower(0);
-            strafe(0.4, 1.25);
+            strafe(0.4, 1.75);
             turn(-0.25, -83);
-            driveStraight(-0.5,1620);
+            driveStraight(-0.65,1620);
             claw.setPosition(1);
             sleep(300);
-            moveTapeandRetract(-1, 24, 0);
-            driveStraight(0.25, 250);
+            moveTapeandRetract(-1, 24, 200);
+            //driveStraight(0.25, 250);
 
 
 
