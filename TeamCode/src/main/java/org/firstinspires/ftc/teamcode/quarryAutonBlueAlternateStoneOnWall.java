@@ -18,8 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Red Quarry Auton")
-public class quarryAutonRed2Stones extends LinearOpMode {
+@Autonomous(name="Blue Quarry Auton Alternate Stone on Wall")
+public class quarryAutonBlueAlternateStoneOnWall extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -28,7 +28,6 @@ public class quarryAutonRed2Stones extends LinearOpMode {
     public DcMotor scissor2;
     public DcMotor pinion;
     public DcMotor tape;
-
 
 
     public BNO055IMU imu;
@@ -50,6 +49,8 @@ public class quarryAutonRed2Stones extends LinearOpMode {
     boolean done2 = false;
     boolean done3 = false;
     boolean forfeit = false;
+
+
 
 
     @Override
@@ -75,10 +76,10 @@ public class quarryAutonRed2Stones extends LinearOpMode {
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -102,6 +103,7 @@ public class quarryAutonRed2Stones extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
+
             claw.setPosition(1);
             driveAndSetArm();
             distanceDrive(-0.125, 75);
@@ -110,25 +112,19 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         }
 
     }
-
     public void driveAndSetArm() {
-        double encoderCounts = (600 / 307.867) * 537.6;
+        double encoderCounts = (600/307.867) * 537.6;
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         resetEncoder();
         useEncoder();
         pinion.setPower(-1);
         setPowers(-0.25, -0.25, -0.25, -0.25);
-        while (right_front.getCurrentPosition() > -encoderCounts || done3 == false) {
+        while (right_front.getCurrentPosition() > -encoderCounts  || done3 == false) {
             sleep(5);
-            if(opModeIsActive() == false) {
-                break;
-            }
-            if (pinion.getCurrentPosition() < -288 * 1) {
+            if (pinion.getCurrentPosition() < -288*1) {
                 pinion.setPower(0);
                 done = true;
                 pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -140,12 +136,12 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                     scissor2.setPower(1);
                     firstArm = false;
                 }
+
                 if (scissor_touch.isPressed() == true) {
                     scissor1.setPower(0);
                     scissor2.setPower(0);
                     done2 = true;
                 }
-
             }
             if (done2) {
                 if (first) {
@@ -153,131 +149,158 @@ public class quarryAutonRed2Stones extends LinearOpMode {
                     startTime = getRuntime();
                     pinion.setPower(1);
                 }
+
                 if (getRuntime() - startTime >= 0.5 && startTime != 0) {
                     pinion.setPower(0);
                     done3 = true;
                 }
-
             }
             if(right_front.getCurrentPosition() <= -encoderCounts) {
                 setPowers(0,0,0,0);
             }
+
+            if(opModeIsActive() == false) {
+                break;
+            }
             scissorCheck();
         }
-        scissor1.setPower(0);
-        scissor2.setPower(0);
         setPowers(0,0,0,0);
     }
-
     public void senseAndGrab () {
         float[] hsv_left = new float[3];
         float[] hsv_right = new float[3];
         Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
         Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
-        telemetry.addData("hue left", hsv_left[0] + ' ' + hsv_left[1] + " " + hsv_left[2]);
-        telemetry.addData("hue right", hsv_right[0] + " "  + hsv_right[1] + " " + hsv_right[2]);
-        telemetry.update();
-        if(hsv_left[0]-hsv_right[0] < -8 && forfeit == false) {
+        if(hsv_left[0]-hsv_right[0] <-8 && forfeit == false) {
             //Right
             strafe(-0.4, 0.8);
-            moveArm(-1, 2);
-            claw.setPosition(0);
-            sleep(500);
-            moveArm(1, 1.5);
-            driveStraight(0.25, 25);
-            turn(-0.25, -83);
-            driveStraight(-0.5, 920);
-            claw.setPosition(1);
-            sleep(500);
-            driveAndRetract(1537, 0.5);
-            turn(0.25, -5);
-            driveStraight(-0.25, 100);
             distanceDrive(-0.25, 75);
-            if(forfeit == false) {
+            if(forfeit==false){
+                moveArm(-1, 1);
+                claw.setPosition(0);
+                sleep(600);
+                driveStraight(0.25, 100);
+                turn(0.25, 82);
+                driveStraight(-0.5, 1500);
+                claw.setPosition(1);
+                sleep(300);
+                //strafe(0.4,0.25);
+                driveAndArm(1750, 0.35, 1, 1);
+                turn(-0.25, 0);
+                strafe(-0.4, 1.5);
+                distanceDrive(-0.125, 75);
                 moveArm(-1, 0.5);
+                turn(-0.25, -40);
                 claw.setPosition(0);
                 sleep(500);
                 driveStraight(0.25, 150);
-                turn(-0.25, -83);
-                driveStraight(-0.5,1597);
+                turn(0.25, 83);
+                driveStraight(-0.5,1800);
                 claw.setPosition(1);
-                sleep(500);
-                moveTapeandRetract(-1, 24, 0.25);
+                sleep(300);
+                moveTapeandRetract(-1, 24, 0);
                 /*
-                driveStraight(0.25, 350);
-                moveArm(1, 0.5);
-                 */
+                driveStraight(0.25, 300);
+                driveStraight(-0.25, 255);
+                turn(-0.27, -88);
+                strafe(0.4, 1.25);
+                claw.setPosition(0);
+                sleep(600);
+                strafe(-0.4, 1.25);
+                turn(0.27, 82);
+                driveStraight(-0.5,1620);
+                claw.setPosition(1);
+                sleep(300);
+                moveTapeandRetract(-1, 24, 0);
+                //driveStraight(0.25, 250);
 
+                 */
             }
-        }else if(hsv_left[0]-hsv_right[0] > 8 && forfeit == false) {
+        }else if(hsv_left[0]-hsv_right[0] > 8&& forfeit== false) {
             //Left
             driveStraight(0.25, 25);
             strafe(0.4, 0.6);
-            moveArm(-1, 1.0);
-            claw.setPosition(0);
-            sleep(500);
-            driveStraight(0.25, 75);
-            turn(-0.25, -83);
-            driveStraight(-0.5, 1500);
-            claw.setPosition(1);
-            sleep(500);
-            driveAndArm(1770, 0.5, 1, 1);
-            driveStraight(0.25, 300);
-            driveStraight(-0.25, 170);
-            turn(0.25, 88);
-            strafe(-0.4, 1.75);
-            pinion.setPower(-1);
-            sleep(350);
-            pinion.setPower(0);
+            moveArm(-1, 0.5);
             claw.setPosition(0);
             sleep(600);
-            pinion.setPower(1);
-            sleep(150);
-            pinion.setPower(0);
-            strafe(0.4, 1.75);
-            turn(-0.25, -83);
-            driveStraight(-0.65,1670);
+            driveStraight(0.25, 100);
+            turn(0.25, 83);
+            driveStraight(-0.5, 920);
             claw.setPosition(1);
-            sleep(300);
-            moveTapeandRetract(-1, 24, 200);
-            //driveStraight(0.25, 250);
-
-
-
-
-        }else {
-            if(forfeit == false) {
-                //Middle
+            sleep(600);
+            driveAndArm(1447, 0.5, 0.5, 1);
+            turn(-0.25, 0);
+            distanceDrive(-0.25, 75);
+            if(forfeit==false) {
                 moveArm(-1, 1);
                 claw.setPosition(0);
-                sleep(500);
+                sleep(600);
+                moveArm(1, 0.5);
                 driveStraight(0.25, 100);
-                turn(-0.25, -83);
-                driveStraight(-0.5, 1160);
+                turn(0.25, 84);
+                driveStraight(-0.5,1600);
                 claw.setPosition(1);
-                sleep(500);
-                driveAndRetract(1750, 1);
-                turn(0.25, -5);
-                driveStraight(-0.25, 100);
-                distanceDrive(-0.25, 75);
+                sleep(600);
+                moveTapeandRetract(-1, 24, 0.25);
+                /*
+                driveStraight(0.25, 250);
+                moveArm(1, 0.5);
+                 */
+            }
+        }else{
+            if(forfeit == false) {
+                //Middle
+                moveArm(-1, 1.5);
+                claw.setPosition(0);
+                sleep(600);
+                moveArm(1, 1);
+                driveStraight(0.25, 100);
+                turn(0.25, 83);
+                driveStraight(-0.5, 1240);
+                claw.setPosition(1);
+                sleep(600);
+                driveAndArm(1750,0.5,0.5,1);
+                turn(-0.25, 0);
+                distanceDrive(-0.125, 75);
                 if(forfeit== false) {
-                    moveArm(-1, 2);
+                    moveArm(-1, 1);
                     claw.setPosition(0);
-                    sleep(500);
-                    moveArm(1,1.5);
+                    sleep(600);
+                    moveArm(1, 0.5);
                     driveStraight(0.25, 100);
-                    turn(-0.25, -83);
-                    driveStraight(-0.5,1800);
+                    turn(0.25, 83);
+                    driveStraight(-0.5, 1800);
                     claw.setPosition(1);
-                    sleep(500);
+                    sleep(600);
                     moveTapeandRetract(-1, 24, 0.25);
                     /*
                     driveStraight(0.25, 250);
                     moveArm(1, 0.5);
                      */
                 }
+
             }
         }
+
+    }
+    public void moveTape(double power, double in) {
+        double encoderCounts = (in/11.131625) * 288;
+        tape.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tape.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        tape.setPower(power);
+        if(power > 0) {
+            while(tape.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+            }
+        } else if (power < 0 ) {
+            while(tape.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+            }
+        }
+        tape.setPower(0);
+
     }
     public void moveTapeandRetract(double power, double in, double pinionTime) {
         double encoderCounts = (in/11.131625) * 288;
@@ -349,25 +372,6 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         }
         setPowers(0,0,0,0);
     }
-    public void driveAndRetract( double mm, double revolutions) {
-        double encoderCounts = (mm/307.867)*537.6;
-        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        resetEncoder();
-        useEncoder();
-        pinion.setPower(1);
-        setPowers(0.5, 0.5, 0.5, 0.5);
-        while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
-            sleep(5);
-            if(pinion.getCurrentPosition() > 288*revolutions) {
-                pinion.setPower(0);
-            }
-        }
-
-        setPowers(0,0,0,0);
-
-
-    }
     public void moveArm(double power, double revolutions) {
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -390,8 +394,8 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         useEncoder();
         setPowers(power, power, power ,power);
         while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo && opModeIsActive()) {
-            if(right_front.getCurrentPosition() <= -537.6*2.5) {
-                forfeit = true;
+            if(right_front.getCurrentPosition() < -537.6*2.5) {
+                forfeit=true;
                 break;
             }
         }
@@ -406,7 +410,6 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         if(power > 0) {
             current = turn.firstAngle;
             while (current <= degrees) {
-                sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
                 if (opModeIsActive() == false) {
@@ -416,7 +419,6 @@ public class quarryAutonRed2Stones extends LinearOpMode {
         } else if(power <0) {
             current = turn.firstAngle;
             while(current >= degrees) {
-                sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
                 if (opModeIsActive() == false) {
@@ -459,7 +461,13 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             setBrakeBehavior();
             setPowers(0,0,0,0);
         }
+
+
+
+
     }
+
+
 
     public void driveStraight(double Power, double millimeters) {
         double encoderCounts = (millimeters/307.867)*537.6;

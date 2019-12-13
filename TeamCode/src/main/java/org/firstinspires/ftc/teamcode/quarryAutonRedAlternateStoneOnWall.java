@@ -18,8 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Red Quarry Auton")
-public class quarryAutonRed2Stones extends LinearOpMode {
+@Autonomous(name="Red Quarry Auton Alternate Stone on Wall")
+public class quarryAutonRedAlternateStoneOnWall extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -222,6 +222,20 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             claw.setPosition(1);
             sleep(500);
             driveAndArm(1770, 0.5, 1, 1);
+            turn(0.25, 0);
+            strafe(0.4, 1.5);
+            distanceDrive(-0.125, 75);
+            moveArm(-1, 0.5);
+            turn(0.25, 40);
+            claw.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 150);
+            turn(-0.25, -83);
+            driveStraight(-0.65,1900);
+            claw.setPosition(1);
+            sleep(300);
+            moveTapeandRetract(-1, 24, 200);
+            /*
             driveStraight(0.25, 300);
             driveStraight(-0.25, 170);
             turn(0.25, 88);
@@ -241,6 +255,8 @@ public class quarryAutonRed2Stones extends LinearOpMode {
             sleep(300);
             moveTapeandRetract(-1, 24, 200);
             //driveStraight(0.25, 250);
+
+             */
 
 
 

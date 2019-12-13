@@ -122,6 +122,7 @@ public class buildAutonRed extends LinearOpMode {
             lower();
             moveArm(1, 1.5);
             strafe(0.5, 2);
+            strafe(-0.5, 0.25);
             driveStraight(-0.25, 1000);
         }
     }

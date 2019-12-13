@@ -115,6 +115,7 @@ public class buildAutonBlue extends LinearOpMode {
             moveArm(1, 1.5);
             driveStraight(-0.25, 75);
             strafe(-0.45, 1.5);
+            strafe(0.5, 0.25);
             driveStraight(-0.25, 1000);
         }
 
