@@ -1,16 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.PreviousAutonsScissorBot;
 
 import android.graphics.Color;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -18,9 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Quarry Auton Blue")
-@Disabled
-public class quarryAutonBlue extends LinearOpMode {
+@Autonomous(name="Red Quarry Auton")
+public class quarryAutonRed2Stones extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -28,6 +27,8 @@ public class quarryAutonBlue extends LinearOpMode {
     public DcMotor scissor1;
     public DcMotor scissor2;
     public DcMotor pinion;
+    public DcMotor tape;
+
 
 
     public BNO055IMU imu;
@@ -39,12 +40,16 @@ public class quarryAutonBlue extends LinearOpMode {
     public Servo foundation1;
     public Servo foundation2;
 
+    public TouchSensor scissor_touch;
+
     double current;
     boolean first = true;
+    boolean firstArm = true;
     double startTime = 0;
     boolean done = false;
-
-
+    boolean done2 = false;
+    boolean done3 = false;
+    boolean forfeit = false;
 
 
     @Override
@@ -56,26 +61,27 @@ public class quarryAutonBlue extends LinearOpMode {
         scissor1 = hardwareMap.dcMotor.get("scissor1");
         scissor2 = hardwareMap.dcMotor.get("scissor2");
         pinion = hardwareMap.dcMotor.get("pinion");
+        tape = hardwareMap.dcMotor.get("tape");
 
         claw = hardwareMap.servo.get("claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
-
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
-        parameters.mode                = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
         stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
         left_color = hardwareMap.get(ColorSensor.class, "left_color");
         right_color = hardwareMap.get(ColorSensor.class, "right_color");
+
+        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
 
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -101,96 +107,265 @@ public class quarryAutonBlue extends LinearOpMode {
             distanceDrive(-0.125, 75);
             senseAndGrab();
             sleep(5000);
-
-
         }
 
     }
+
     public void driveAndSetArm() {
-        double encoderCounts = (600/307.867)*537.6;
+        double encoderCounts = (600 / 307.867) * 537.6;
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         resetEncoder();
         useEncoder();
         pinion.setPower(-1);
         setPowers(-0.25, -0.25, -0.25, -0.25);
-        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+        while (right_front.getCurrentPosition() > -encoderCounts || done3 == false) {
             sleep(5);
-
-            if(pinion.getCurrentPosition() < -288*1) {
+            if(opModeIsActive() == false) {
+                break;
+            }
+            if (pinion.getCurrentPosition() < -288 * 1) {
                 pinion.setPower(0);
                 done = true;
                 pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-            if(done) {
+            if (done) {
+                if(firstArm) {
+                    scissor1.setPower(1);
+                    scissor2.setPower(1);
+                    firstArm = false;
+                }
+                if (scissor_touch.isPressed() == true) {
+                    scissor1.setPower(0);
+                    scissor2.setPower(0);
+                    done2 = true;
+                }
 
-                if(first) {
+            }
+            if (done2) {
+                if (first) {
                     first = false;
                     startTime = getRuntime();
                     pinion.setPower(1);
                 }
-
-                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
-
+                if (getRuntime() - startTime >= 0.5 && startTime != 0) {
                     pinion.setPower(0);
+                    done3 = true;
                 }
-                telemetry.addData("", getRuntime()-startTime);
-                telemetry.update();
 
             }
+            if(right_front.getCurrentPosition() <= -encoderCounts) {
+                setPowers(0,0,0,0);
+            }
+            scissorCheck();
         }
-
-        setPowers(0, 0, 0, 0);
+        scissor1.setPower(0);
+        scissor2.setPower(0);
+        setPowers(0,0,0,0);
     }
+
     public void senseAndGrab () {
-        /*double flip = 0;
-        double difference = left_color.green() - right_color.green();
-        flip = difference;
-        if(difference < 0) {
-            flip = difference *-1;
-        }*/
         float[] hsv_left = new float[3];
         float[] hsv_right = new float[3];
         Color.RGBToHSV(left_color.red(), left_color.green(), left_color.blue(), hsv_left);
         Color.RGBToHSV(right_color.red(), right_color.green(), right_color.blue(), hsv_right);
-        if(hsv_left[0] <85 && hsv_left[0] > 40 && hsv_right[0] >85) {
-            strafe(-0.4, 1);
+        telemetry.addData("hue left", hsv_left[0] + ' ' + hsv_left[1] + " " + hsv_left[2]);
+        telemetry.addData("hue right", hsv_right[0] + " "  + hsv_right[1] + " " + hsv_right[2]);
+        telemetry.update();
+        if(hsv_left[0]-hsv_right[0] < -8 && forfeit == false) {
+            //Right
+            strafe(-0.4, 0.8);
             moveArm(-1, 2);
             claw.setPosition(0);
             sleep(500);
             moveArm(1, 1.5);
             driveStraight(0.25, 25);
-            turn(0.125, 85);
-            driveStraight(-0.5, 1300);
-            claw.setPosition(1);
-            sleep(500);
-            driveStraight(0.25, 200);
-            moveArm(1, 0.5);
-        }else if(hsv_right[0] <85 && hsv_right[0] > 40 && hsv_left[0] >85) {
-            strafe(0.4, 1);
-            moveArm(-1, 0.5);
-            claw.setPosition(0);
-            sleep(500);
-            driveStraight(0.25, 100);
-            turn(0.125, 85);
+            turn(-0.25, -83);
             driveStraight(-0.5, 920);
             claw.setPosition(1);
             sleep(500);
-            driveStraight(0.25, 250);
-            moveArm(1, 0.5);
-        }else {
-            moveArm(-1, 0.5);
+            driveAndRetract(1537, 0.5);
+            turn(0.25, -5);
+            driveStraight(-0.25, 100);
+            distanceDrive(-0.25, 75);
+            if(forfeit == false) {
+                moveArm(-1, 0.5);
+                claw.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 150);
+                turn(-0.25, -83);
+                driveStraight(-0.5,1597);
+                claw.setPosition(1);
+                sleep(500);
+                moveTapeandRetract(-1, 24, 0.25);
+                /*
+                driveStraight(0.25, 350);
+                moveArm(1, 0.5);
+                 */
+
+            }
+        }else if(hsv_left[0]-hsv_right[0] > 8 && forfeit == false) {
+            //Left
+            driveStraight(0.25, 25);
+            strafe(0.4, 0.6);
+            moveArm(-1, 1.0);
             claw.setPosition(0);
             sleep(500);
-            driveStraight(0.25, 100);
-            turn(0.125, 85);
-            driveStraight(-0.25, 1160);
+            driveStraight(0.25, 75);
+            turn(-0.25, -83);
+            driveStraight(-0.5, 1500);
             claw.setPosition(1);
             sleep(500);
-            driveStraight(0.25, 200);
-            moveArm(1, 0.5);
+            driveAndArm(1770, 0.5, 1, 1);
+            driveStraight(0.25, 300);
+            driveStraight(-0.25, 170);
+            turn(0.25, 88);
+            strafe(-0.4, 1.75);
+            pinion.setPower(-1);
+            sleep(350);
+            pinion.setPower(0);
+            claw.setPosition(0);
+            sleep(600);
+            pinion.setPower(1);
+            sleep(150);
+            pinion.setPower(0);
+            strafe(0.4, 1.75);
+            turn(-0.25, -83);
+            driveStraight(-0.65,1670);
+            claw.setPosition(1);
+            sleep(300);
+            moveTapeandRetract(-1, 24, 200);
+            //driveStraight(0.25, 250);
+
+
+
+
+        }else {
+            if(forfeit == false) {
+                //Middle
+                moveArm(-1, 1);
+                claw.setPosition(0);
+                sleep(500);
+                driveStraight(0.25, 100);
+                turn(-0.25, -83);
+                driveStraight(-0.5, 1160);
+                claw.setPosition(1);
+                sleep(500);
+                driveAndRetract(1750, 1);
+                turn(0.25, -5);
+                driveStraight(-0.25, 100);
+                distanceDrive(-0.25, 75);
+                if(forfeit== false) {
+                    moveArm(-1, 2);
+                    claw.setPosition(0);
+                    sleep(500);
+                    moveArm(1,1.5);
+                    driveStraight(0.25, 100);
+                    turn(-0.25, -83);
+                    driveStraight(-0.5,1800);
+                    claw.setPosition(1);
+                    sleep(500);
+                    moveTapeandRetract(-1, 24, 0.25);
+                    /*
+                    driveStraight(0.25, 250);
+                    moveArm(1, 0.5);
+                     */
+                }
+            }
         }
+    }
+    public void moveTapeandRetract(double power, double in, double pinionTime) {
+        double encoderCounts = (in/11.131625) * 288;
+        tape.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tape.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        pinion.setPower(1);
+        tape.setPower(power);
+        double startTime = getRuntime();
+        if(power > 0) {
+            while(tape.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+                if(getRuntime()-startTime > pinionTime) {
+                    pinion.setPower(0);
+                }
+            }
+        } else if (power < 0 ) {
+            while(tape.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                scissorCheck();
+                if(getRuntime()-startTime > pinionTime) {
+                    pinion.setPower(0);
+                }
+            }
+        }
+        tape.setPower(0);
+
+    }
+    public void driveAndArm(double mm, double wheelPower, double armRotations, double armPower) {
+        double encoderCounts = (mm/307.867)*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(armPower);
+        setPowers(wheelPower, wheelPower, wheelPower, wheelPower);
+        if(wheelPower>0 && armPower >0) {
+            while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                if(pinion.getCurrentPosition() >= 288*armRotations) {
+                    pinion.setPower(0);
+                }
+                telemetry.addData("", pinion.getCurrentPosition());
+                telemetry.update();
+            }
+        } else if (wheelPower > 0 && armPower <0) {
+            while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+                sleep(5);
+                if(pinion.getCurrentPosition() <= -288*armRotations) {
+                    pinion.setPower(0);
+                }
+            }
+        } else if(wheelPower < 0 && armPower >0) {
+            while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                if (pinion.getCurrentPosition() >= 288 * armRotations) {
+                    pinion.setPower(0);
+                }
+            }
+
+        } else if(wheelPower < 0 && armPower < 0) {
+            while(right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+                sleep(5);
+                if(pinion.getCurrentPosition() <= -288*armRotations) {
+                    pinion.setPower(0);
+                }
+            }
+        }
+        setPowers(0,0,0,0);
+    }
+    public void driveAndRetract( double mm, double revolutions) {
+        double encoderCounts = (mm/307.867)*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(1);
+        setPowers(0.5, 0.5, 0.5, 0.5);
+        while(right_front.getCurrentPosition() < encoderCounts && opModeIsActive()) {
+            sleep(5);
+            if(pinion.getCurrentPosition() > 288*revolutions) {
+                pinion.setPower(0);
+            }
+        }
+
+        setPowers(0,0,0,0);
+
 
     }
     public void moveArm(double power, double revolutions) {
@@ -211,9 +386,14 @@ public class quarryAutonBlue extends LinearOpMode {
     }
 
     public void distanceDrive(double power, double distanceTo) {
+        resetEncoder();
+        useEncoder();
         setPowers(power, power, power ,power);
-        while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo) {
-
+        while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo && opModeIsActive()) {
+            if(right_front.getCurrentPosition() <= -537.6*2.5) {
+                forfeit = true;
+                break;
+            }
         }
         setPowers(0,0,0,0);
     }
@@ -235,7 +415,7 @@ public class quarryAutonBlue extends LinearOpMode {
             }
         } else if(power <0) {
             current = turn.firstAngle;
-            while(current <= degrees) {
+            while(current >= degrees) {
                 sleep(5);
                 turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 current = turn.firstAngle;
@@ -279,13 +459,7 @@ public class quarryAutonBlue extends LinearOpMode {
             setBrakeBehavior();
             setPowers(0,0,0,0);
         }
-
-
-
-
     }
-
-
 
     public void driveStraight(double Power, double millimeters) {
         double encoderCounts = (millimeters/307.867)*537.6;
@@ -341,5 +515,11 @@ public class quarryAutonBlue extends LinearOpMode {
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void scissorCheck() {
+        if(scissor1.getPower() > 0 && scissor_touch.isPressed()) {
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        }
     }
 }

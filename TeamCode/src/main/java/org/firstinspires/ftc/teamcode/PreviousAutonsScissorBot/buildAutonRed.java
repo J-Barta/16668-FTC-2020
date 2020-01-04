@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.PreviousAutonsScissorBot;
+
+import android.text.method.Touch;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -15,8 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Blue Build Auton")
-public class buildAutonBlue extends LinearOpMode {
+@Autonomous(name="Red Build Auton")
+public class buildAutonRed extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -60,11 +62,13 @@ public class buildAutonBlue extends LinearOpMode {
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
-        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
-
         stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
         left_color = hardwareMap.get(ColorSensor.class, "left_color");
         right_color = hardwareMap.get(ColorSensor.class, "right_color");
+
+        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
+
+
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -75,6 +79,9 @@ public class buildAutonBlue extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+
+
+
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -98,28 +105,38 @@ public class buildAutonBlue extends LinearOpMode {
         if (opModeIsActive()) {
             foundation1.setPosition(0);
             foundation2.setPosition(0);
-            strafe(-0.5, 1);
-            driveStraight(0.5,750);
-            driveStraight(0.25, 100);
+            driveStraight(0.25, 25);
+            strafe(0.5, 0.5);
+            driveStraight(0.5,625);
+            driveStraight(0.25, 250);
             foundation1.setPosition(1);
             foundation2.setPosition(1);
             sleep(500);
             driveStraight(-0.25, 950);
-            turn(0.5, 90);
+            turn(-0.5, -90);
             foundation1.setPosition(0);
             foundation2.setPosition(0);
             sleep(500);
-            driveStraight(0.25, 250);
-            moveArm(-1,2);
+            driveStraight(0.25, 200);
+            moveArm(-1, 2);
             lower();
             moveArm(1, 1.5);
-            driveStraight(-0.25, 75);
-            strafe(-0.45, 1.5);
-            strafe(0.5, 0.25);
+            strafe(0.5, 2);
+            strafe(-0.5, 0.25);
             driveStraight(-0.25, 1000);
         }
-
-
+    }
+    public void lower() {
+        scissor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor1.setPower(1);
+        scissor2.setPower(1);
+        while(scissor_touch.isPressed() == false && opModeIsActive()) {
+            sleep(5);
+            scissorCheck();
+        }
+        scissor1.setPower(0);
+        scissor2.setPower(0);
     }
     public void moveArm(double power, double revolutions) {
         pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -165,19 +182,6 @@ public class buildAutonBlue extends LinearOpMode {
 
         pinion.setPower(0);
     }
-    public void lower() {
-        scissor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        scissor1.setPower(1);
-        scissor2.setPower(1);
-        while(scissor_touch.isPressed() == false && opModeIsActive()) {
-            sleep(5);
-            scissorCheck();
-        }
-
-        scissor1.setPower(0);
-        scissor2.setPower(0);
-    }
 
     public void driveAndSetArm() {
         double encoderCounts = (1000/307.867)*537.6;
@@ -191,7 +195,7 @@ public class buildAutonBlue extends LinearOpMode {
         while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
             sleep(5);
 
-            if(pinion.getCurrentPosition() < -288*1.5) {
+            if(pinion.getCurrentPosition() < -288*1) {
                 pinion.setPower(0);
                 done = true;
                 pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

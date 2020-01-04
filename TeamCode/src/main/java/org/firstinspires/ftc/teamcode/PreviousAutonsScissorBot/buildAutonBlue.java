@@ -1,24 +1,22 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.PreviousAutonsScissorBot;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="Quarry Auton Red")
-@Disabled
-public class quarryAutonRed extends LinearOpMode {
+@Autonomous(name="Blue Build Auton")
+public class buildAutonBlue extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -37,10 +35,15 @@ public class quarryAutonRed extends LinearOpMode {
     public Servo foundation1;
     public Servo foundation2;
 
+    public TouchSensor scissor_touch;
+
     double current;
+
     boolean first = true;
     double startTime = 0;
     boolean done = false;
+
+
 
 
     @Override
@@ -57,7 +60,11 @@ public class quarryAutonRed extends LinearOpMode {
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
 
+        scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
 
+        stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
+        left_color = hardwareMap.get(ColorSensor.class, "left_color");
+        right_color = hardwareMap.get(ColorSensor.class, "right_color");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -68,11 +75,6 @@ public class quarryAutonRed extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-
-        stone_distance = hardwareMap.get(DistanceSensor.class, "stone_distance");
-        left_color = hardwareMap.get(ColorSensor.class, "left_color");
-        right_color = hardwareMap.get(ColorSensor.class, "right_color");
-
 
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -90,103 +92,33 @@ public class quarryAutonRed extends LinearOpMode {
         scissor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
+
         waitForStart();
         if (opModeIsActive()) {
-            claw.setPosition(1);
-            driveAndSetArm();
-            distanceDrive(-0.125, 75);
-            senseAndGrab();
-            sleep(5000);
-        }
-
-    }
-    public void driveAndSetArm() {
-        double encoderCounts = (600/307.867)*537.6;
-        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        resetEncoder();
-        useEncoder();
-        pinion.setPower(-1);
-        setPowers(-0.25, -0.25, -0.25, -0.25);
-        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
-            sleep(5);
-
-            if(pinion.getCurrentPosition() < -288*1) {
-                pinion.setPower(0);
-                done = true;
-                pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }
-            if(done) {
-
-                if(first) {
-                    first = false;
-                    startTime = getRuntime();
-                    pinion.setPower(1);
-                }
-
-                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
-
-                    pinion.setPower(0);
-                }
-                telemetry.addData("", getRuntime()-startTime);
-                telemetry.update();
-
-            }
-        }
-
-        setPowers(0, 0, 0, 0);
-    }
-    public void senseAndGrab () {
-        double flip = 0;
-        double difference = left_color.green() - right_color.green();
-        flip = difference;
-        if(difference < 0) {
-            flip = difference *-1;
-        }
-        if(flip > 200) {
-            if(difference > 0) {
-                strafe(0.4, 1);
-                moveArm(-1, 0.5);
-                claw.setPosition(0);
-                sleep(500);
-                driveStraight(0.25, 100);
-                turn(-0.125, -85);
-                driveStraight(-0.5, 1300);
-                claw.setPosition(1);
-                sleep(500);
-                driveStraight(0.25, 200);
-                moveArm(1, 0.5);
-            }else if( difference <0) {
-                strafe(-0.4, 0.75);
-                moveArm(-1, 2);
-                claw.setPosition(0);
-                sleep(500);
-                moveArm(1, 1.5);
-                driveStraight(0.25, 25);
-                turn(-0.125, -85);
-                driveStraight(-0.5, 870);
-                claw.setPosition(1);
-                sleep(500);
-                driveStraight(0.25, 200);
-                moveArm(1, 0.5);
-            }
-        } else {
-            moveArm(-1, 0.5);
-            claw.setPosition(0);
-            sleep(500);
+            foundation1.setPosition(0);
+            foundation2.setPosition(0);
+            strafe(-0.5, 1);
+            driveStraight(0.5,750);
             driveStraight(0.25, 100);
-            turn(-0.125, -85);
-            driveStraight(-0.25, 1160);
-            claw.setPosition(1);
+            foundation1.setPosition(1);
+            foundation2.setPosition(1);
             sleep(500);
-            driveStraight(0.25, 200);
-            moveArm(1, 0.5);
-
-
+            driveStraight(-0.25, 950);
+            turn(0.5, 90);
+            foundation1.setPosition(0);
+            foundation2.setPosition(0);
+            sleep(500);
+            driveStraight(0.25, 250);
+            moveArm(-1,2);
+            lower();
+            moveArm(1, 1.5);
+            driveStraight(-0.25, 75);
+            strafe(-0.45, 1.5);
+            strafe(0.5, 0.25);
+            driveStraight(-0.25, 1000);
         }
-        telemetry.addData("", flip);
-        telemetry.update();
+
 
     }
     public void moveArm(double power, double revolutions) {
@@ -205,16 +137,81 @@ public class quarryAutonRed extends LinearOpMode {
 
         pinion.setPower(0);
     }
-
-    public void distanceDrive(double power, double distanceTo) {
-        setPowers(power, power, power ,power);
-        while(stone_distance.getDistance(DistanceUnit.MM) >= distanceTo) {
-
+    public void lift(double power, double revolutions) {
+        scissor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scissor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        scissor1.setPower(power);
+        scissor2.setPower(power);
+        if(power < 0) {
+            while(scissor1.getCurrentPosition() > -288*revolutions && opModeIsActive()) {
+                sleep(5);
+            }
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        } else if (power > 0) {
+            while(scissor1.getCurrentPosition() < 288*revolutions && opModeIsActive())  {
+                sleep(5);
+                if(scissor_touch.isPressed()) {
+                    scissor1.setPower(0);
+                    scissor1.setPower(0);
+                    break;
+                }
+            }
+            scissor1.setPower(0);
+            scissor2.setPower(0);
         }
-        setPowers(0,0,0,0);
+
+        pinion.setPower(0);
+    }
+    public void lower() {
+        scissor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scissor1.setPower(1);
+        scissor2.setPower(1);
+        while(scissor_touch.isPressed() == false && opModeIsActive()) {
+            sleep(5);
+            scissorCheck();
+        }
+
+        scissor1.setPower(0);
+        scissor2.setPower(0);
     }
 
+    public void driveAndSetArm() {
+        double encoderCounts = (1000/307.867)*537.6;
+        pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+        useEncoder();
+        pinion.setPower(-1);
+        setPowers(-0.25, -0.25, -0.25, -0.25);
+        encoderCounts = encoderCounts;
+        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+            sleep(5);
 
+            if(pinion.getCurrentPosition() < -288*1.5) {
+                pinion.setPower(0);
+                done = true;
+                pinion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                pinion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            if(done) {
+                if(first) {
+                    first = false;
+                    startTime = getRuntime();
+                    pinion.setPower(1);
+                }
+                if(getRuntime()-startTime >= 0.5 && startTime != 0) {
+                    pinion.setPower(0);
+                }
+
+        }
+        }
+
+        setPowers(0, 0, 0, 0);
+    }
     public void turn(double power, double degrees) {
         Orientation turn = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         setPowers(-power, -power, power, power);
@@ -337,5 +334,11 @@ public class quarryAutonRed extends LinearOpMode {
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    public void scissorCheck() {
+        if(scissor1.getPower() > 0 && scissor_touch.isPressed()) {
+            scissor1.setPower(0);
+            scissor2.setPower(0);
+        }
     }
 }
