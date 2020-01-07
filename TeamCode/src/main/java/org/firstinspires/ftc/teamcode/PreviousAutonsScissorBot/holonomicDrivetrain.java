@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.PreviousAutonsScissorBot;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="holonomic Concept")
+@Disabled
 public class holonomicDrivetrain extends LinearOpMode {
 
     DcMotor motorFrontRight;
