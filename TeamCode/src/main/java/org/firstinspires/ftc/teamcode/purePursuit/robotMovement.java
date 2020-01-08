@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class robotMovement extends LinearOpMode {
     globalCoordinatePosition globalPositionUpdate;
-
+    /*
     public static void followCurve(ArrayList<curvePoint> allPoints, double followAngle) {
 
     }
@@ -45,6 +45,8 @@ public class robotMovement extends LinearOpMode {
         return followMe;
     }
 
+     */
+
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -69,7 +71,7 @@ public class robotMovement extends LinearOpMode {
         globalPositionUpdate.reverseNormalEncoder();
 
         if(opModeIsActive()) {
-            goToPosition(358/2, 358/2, 0.5,  Math.toRadians(90), 0.3);
+            goToPosition(70, 70, 0.5,  Math.toRadians(90), 0.3);
         }
 
 
@@ -107,13 +109,60 @@ public class robotMovement extends LinearOpMode {
         if(distanceToTarget < 5) {
             movement_turn = 0;
         }
-        right_front.setPower(movement_y - movement_turn - movement_x);
-        right_back.setPower(movement_y - movement_turn + movement_x);
-        left_front.setPower(movement_y + movement_turn + movement_x);
-        left_back.setPower(movement_y + movement_turn - movement_x);
+        double rightFront = movement_y - movement_turn - movement_x;
+        double rightBack = -movement_y - movement_turn + movement_x;
+        double leftFront = -movement_y + movement_turn + movement_x;
+        double leftBack = movement_y + movement_turn - movement_x;
 
-        while(opModeIsActive()) {
+        rightFront = Range.clip(rightFront, -1, 1);
+        leftFront = Range.clip(leftFront, -1, 1);
+        leftBack = Range.clip(leftBack, -1, 1);
+        rightBack = Range.clip(rightBack, -1, 1);
 
+
+
+        right_front.setPower(rightFront);
+        right_back.setPower(rightBack);
+        left_front.setPower(leftFront);
+        left_back.setPower(leftBack);
+
+        while(opModeIsActive() && distanceToTarget > 0.5) {
+            distanceToTarget = Math.hypot(x-globalPositionUpdate.returnXCoordinate(), y-globalPositionUpdate.returnYCoordinate());
+
+            absoluteAngleToTarget = Math.atan2(y-globalPositionUpdate.returnYCoordinate(), x-globalPositionUpdate.returnXCoordinate());
+
+            relativeAngleToPoint = mathFunctions.AngleWrap(absoluteAngleToTarget - (globalPositionUpdate.returnOrientation()-Math.toRadians(90)));
+
+            relativeXToPoint = Math.cos(relativeAngleToPoint) * distanceToTarget;
+            relativeYToPoint = Math.sin(relativeAngleToPoint) *distanceToTarget;
+
+            movementXPower = relativeXToPoint/ (Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint));
+            movementYPower = relativeYToPoint / (Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint));
+
+            movement_x = movementXPower*movementSpeed;
+            movement_y = movementYPower*movementSpeed;
+
+            relativeTurnAngle = relativeAngleToPoint - Math.toRadians(180) + preferredAngle;
+            movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
+            if(distanceToTarget < 5) {
+                movement_turn = 0;
+            }
+            rightFront = movement_y - movement_turn - movement_x;
+            rightBack = -movement_y - movement_turn + movement_x;
+            leftFront = -movement_y + movement_turn + movement_x;
+            leftBack = movement_y + movement_turn - movement_x;
+
+            rightFront = Range.clip(rightFront, -1, 1);
+            leftFront = Range.clip(leftFront, -1, 1);
+            leftBack = Range.clip(leftBack, -1, 1);
+            rightBack = Range.clip(rightBack, -1, 1);
+
+
+
+            right_front.setPower(rightFront);
+            right_back.setPower(rightBack);
+            left_front.setPower(leftFront);
+            left_back.setPower(leftBack);
         }
 
     }
