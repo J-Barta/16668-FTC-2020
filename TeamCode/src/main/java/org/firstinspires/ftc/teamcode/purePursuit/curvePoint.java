@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.purePursuit;
 
+import org.firstinspires.ftc.teamcode.OpenCVNecessaryLibraries.Point;
+
 public class curvePoint {
 
     public double x;
@@ -39,7 +41,7 @@ public class curvePoint {
 
     }
 
-    public  Point toPoint(curvePoint curvePoint) {
+    public Point toPoint(curvePoint curvePoint) {
         return new Point(x, y);
     }
 

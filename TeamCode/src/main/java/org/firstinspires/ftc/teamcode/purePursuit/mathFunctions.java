@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.purePursuit;
 
+import org.firstinspires.ftc.teamcode.OpenCVNecessaryLibraries.Point;
+
 import java.util.ArrayList;
 
 import static java.lang.Math.*;

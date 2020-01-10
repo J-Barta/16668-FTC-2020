@@ -20,7 +20,7 @@ import java.io.File;
  * The Global Positioning Algorithm will not function and will throw an error if this program is not run first
  */
 @TeleOp(name = "Odometry System Calibration", group = "Calibration")
-@Disabled
+
 public class OdometryCalibration extends LinearOpMode {
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;
@@ -32,7 +32,7 @@ public class OdometryCalibration extends LinearOpMode {
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
     String right_front_name = "right_front", right_back_name = "right_back", left_front_name = "left_front", left_back_name = "left_back";
-    String verticalLeftEncoderName = right_back_name, verticalRightEncoderName = left_front_name, horizontalEncoderName = right_front_name;
+    String verticalLeftEncoderName = right_back_name, verticalRightEncoderName = left_front_name, horizontalEncoderName = left_back_name;
 
     final double PIVOT_SPEED = 0.5;
 
