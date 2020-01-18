@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode.purePursuit;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 
-import org.firstinspires.ftc.teamcode.purePursuit.globalCoordinatePosition;
 
-import java.util.ArrayList;
-
+@Autonomous(name= "Test Odometry Drive")
 public class robotMovement extends LinearOpMode {
     globalCoordinatePosition globalPositionUpdate;
     /*

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -92,11 +93,19 @@ public class holonomicTeleop extends LinearOpMode {
             FrontLeft = Range.clip(FrontLeft, -1, 1);
             BackLeft = Range.clip(BackLeft, -1, 1);
             BackRight = Range.clip(BackRight, -1, 1);
+            if(!gamepad1.right_bumper) {
+                FrontRight *= 0.45;
+                FrontLeft *= 0.45;
+                BackLeft *= 0.45;
+                BackRight *= 0.45;
+            } else {
+                FrontRight *= 0.65;
+                FrontLeft *= 0.65;
+                BackLeft *= 0.65;
+                BackRight *= 0.65;
+            }
 
-            FrontRight *= 0.5;
-            FrontLeft *= 0.5;
-            BackLeft *= 0.5;
-            BackRight *= 0.5;
+
 
             // write the values to the motors
             right_front.setPower(FrontRight);
