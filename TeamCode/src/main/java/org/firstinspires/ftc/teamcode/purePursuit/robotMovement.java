@@ -47,7 +47,7 @@ public class robotMovement extends LinearOpMode {
 
      */
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
-    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lfName;
+    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
     public DcMotor right_front;
     public DcMotor right_back;
@@ -83,7 +83,7 @@ public class robotMovement extends LinearOpMode {
         globalPositionUpdate.reverseNormalEncoder();
 
         if(opModeIsActive()) {
-            goToPosition(70, 70, 0.5,  Math.toRadians(90), 0.3);
+            goToPosition(70, 70, 0.5,  90, 0.3, 90);
         }
 
 
@@ -98,9 +98,15 @@ public class robotMovement extends LinearOpMode {
      * @param movementSpeed
      * @param preferredAngle
      * @param turnSpeed
+     * @param absoluteAngle
      */
 
-    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double turnSpeed ) {
+
+    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double turnSpeed, double absoluteAngle) {
+        /*
+        This should calculate the initial movements that are necessary for arriving at the point
+         */
+
         double distanceToTarget = Math.hypot(x-globalPositionUpdate.returnXCoordinate(), y-globalPositionUpdate.returnYCoordinate());
 
         double absoluteAngleToTarget = Math.atan2(y-globalPositionUpdate.returnYCoordinate(), x-globalPositionUpdate.returnXCoordinate());
@@ -137,13 +143,16 @@ public class robotMovement extends LinearOpMode {
         right_back.setPower(rightBack);
         left_front.setPower(leftFront);
         left_back.setPower(leftBack);
-
+        /*
+        This loop constantly updates the position and returns new motor powers for use. Once the robot is close enough to the point,
+        the robot should stop.
+         */
         while(opModeIsActive() && distanceToTarget > 0.5) {
             distanceToTarget = Math.hypot(x-globalPositionUpdate.returnXCoordinate(), y-globalPositionUpdate.returnYCoordinate());
 
             absoluteAngleToTarget = Math.atan2(y-globalPositionUpdate.returnYCoordinate(), x-globalPositionUpdate.returnXCoordinate());
 
-            relativeAngleToPoint = mathFunctions.AngleWrap(absoluteAngleToTarget - (globalPositionUpdate.returnOrientation()-Math.toRadians(90)));
+            relativeAngleToPoint = mathFunctions.AngleWrap(absoluteAngleToTarget - (globalPositionUpdate.returnOrientation()-90));
 
             relativeXToPoint = Math.cos(relativeAngleToPoint) * distanceToTarget;
             relativeYToPoint = Math.sin(relativeAngleToPoint) *distanceToTarget;
@@ -154,8 +163,8 @@ public class robotMovement extends LinearOpMode {
             movement_x = movementXPower*movementSpeed;
             movement_y = movementYPower*movementSpeed;
 
-            relativeTurnAngle = relativeAngleToPoint - Math.toRadians(180) + preferredAngle;
-            movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
+            relativeTurnAngle = relativeAngleToPoint - 180 + preferredAngle;
+            movement_turn = Range.clip(relativeTurnAngle/30, -1, 1) * turnSpeed;
             if(distanceToTarget < 5) {
                 movement_turn = 0;
             }
@@ -176,6 +185,36 @@ public class robotMovement extends LinearOpMode {
             left_front.setPower(leftFront);
             left_back.setPower(leftBack);
         }
+        //Turns motors off
+        right_front.setPower(0);
+        right_back.setPower(0);
+        left_front.setPower(0);
+        left_back.setPower(0);
+
+        //Calculates the angle away from the
+        double angleFromTarget = Math.abs((globalPositionUpdate.returnOrientation()-90) - absoluteAngle);
+
+        while(opModeIsActive() && angleFromTarget > 2) {
+            relativeAngleToPoint = mathFunctions.AngleWrap(absoluteAngle - (globalPositionUpdate.returnOrientation()-90));
+            relativeTurnAngle = relativeAngleToPoint - 180 + absoluteAngle;
+            movement_turn = Range.clip(relativeTurnAngle/30, -1, 1) * turnSpeed;
+
+            rightFront = -movement_turn;
+            rightBack  = -movement_turn;
+            leftFront  = movement_turn;
+            leftBack   = movement_turn;
+
+            right_front.setPower(rightFront);
+            right_back.setPower(rightBack);
+            left_front.setPower(leftFront);
+            left_back.setPower(leftBack);
+
+        }
+
+        right_front.setPower(0);
+        right_back.setPower(0);
+        left_front.setPower(0);
+        left_back.setPower(0);
 
     }
     private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
@@ -220,4 +259,5 @@ public class robotMovement extends LinearOpMode {
         telemetry.addData("Status", "Hardware Map Init Complete");
         telemetry.update();
     }
+
 }
