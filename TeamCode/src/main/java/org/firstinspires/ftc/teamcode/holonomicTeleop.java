@@ -93,6 +93,13 @@ public class holonomicTeleop extends LinearOpMode {
             FrontLeft = Range.clip(FrontLeft, -1, 1);
             BackLeft = Range.clip(BackLeft, -1, 1);
             BackRight = Range.clip(BackRight, -1, 1);
+
+            telemetry.addData(" lf", FrontLeft);
+            telemetry.addData(" rf", FrontRight);
+            telemetry.addData(" rb", BackRight);
+            telemetry.addData(" lb", BackLeft);
+            telemetry.update();
+
             if(gamepad1.left_bumper) {
                 FrontRight *= 0.25;
                 FrontLeft *= 0.25;

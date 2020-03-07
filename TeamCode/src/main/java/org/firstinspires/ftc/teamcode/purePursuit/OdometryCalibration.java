@@ -77,12 +77,16 @@ public class OdometryCalibration extends LinearOpMode {
         while(getZAngle() < 90 && opModeIsActive()){
             right_front.setPower(-PIVOT_SPEED);
             right_back.setPower(-PIVOT_SPEED);
-            left_front.setPower(PIVOT_SPEED);
-            left_back.setPower(PIVOT_SPEED);
+            left_front.setPower(-PIVOT_SPEED);
+            left_back.setPower(-PIVOT_SPEED);
+            telemetry.addData( " right_front", -PIVOT_SPEED);
+            telemetry.addData( " right_back", -PIVOT_SPEED);
+            telemetry.addData( " left_front", -PIVOT_SPEED);
+            telemetry.addData( " left_back", -PIVOT_SPEED);
             if(getZAngle() < 60) {
-                setPowerAll(-PIVOT_SPEED, -PIVOT_SPEED, PIVOT_SPEED, PIVOT_SPEED);
+                setPowerAll(-PIVOT_SPEED, -PIVOT_SPEED, -PIVOT_SPEED, -PIVOT_SPEED);
             }else{
-                setPowerAll(-PIVOT_SPEED/2, -PIVOT_SPEED/2, PIVOT_SPEED/2, PIVOT_SPEED/2);
+                setPowerAll(-PIVOT_SPEED/2, -PIVOT_SPEED/2, -PIVOT_SPEED/2, -PIVOT_SPEED/2);
             }
 
             telemetry.addData("IMU Angle", getZAngle());

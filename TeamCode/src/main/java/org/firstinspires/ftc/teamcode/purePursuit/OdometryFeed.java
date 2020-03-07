@@ -5,12 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Odometry.OdometryGlobalCoordinatePosition;
 
-/**
- * Created by Sarthak on 10/4/2019.
- */
 
 @TeleOp(name = "Odometry Feed")
 public class OdometryFeed extends LinearOpMode {
@@ -48,7 +46,7 @@ public class OdometryFeed extends LinearOpMode {
             //Display Global (x, y, theta) coordinates
             telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
             telemetry.addData("Y Position", globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
-            telemetry.addData("Orientation (Degrees)", globalPositionUpdate.returnOrientation());
+            telemetry.addData("Orientation (Degrees)", mathFunctions.interpretAngle(globalPositionUpdate.returnOrientation()));
 
             telemetry.addData("Vertical left encoder position", verticalLeft.getCurrentPosition());
             telemetry.addData("Vertical right encoder position", verticalRight.getCurrentPosition());
@@ -77,9 +75,24 @@ public class OdometryFeed extends LinearOpMode {
 
             double robotMovementAngle = Math.toDegrees(Math.atan2(distanceToXTarget,distanceToYTarget));
 
-            double robotMovemntXComponent = calculateX(robotMovementAngle, robotPower);
-            double robotMovementYComponent = calculateY(robotMovementAngle, robotPower);
-            double pivotCorrection = desiredRobotOrientation - globalPositionUpdate.returnOrientation();
+            double movement_x = calculateX(robotMovementAngle, robotPower);
+            double movement_y = calculateY(robotMovementAngle, robotPower);
+            double movement_turn = desiredRobotOrientation - globalPositionUpdate.returnOrientation();
+
+            double rightFront = movement_y - movement_turn - movement_x;
+            double rightBack = -movement_y - movement_turn + movement_x;
+            double leftFront = -movement_y + movement_turn + movement_x;
+            double leftBack = movement_y + movement_turn - movement_x;
+
+            rightFront = Range.clip(rightFront, -1, 1);
+            leftFront = Range.clip(leftFront, -1, 1);
+            leftBack = Range.clip(leftBack, -1, 1);
+            rightBack = Range.clip(rightBack, -1, 1);
+
+            right_front.setPower(rightFront);
+            right_back.setPower(rightBack);
+            left_front.setPower(leftFront);
+            left_back.setPower(leftBack);
         }
 
     }
@@ -113,10 +126,10 @@ public class OdometryFeed extends LinearOpMode {
         horizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         left_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
