@@ -38,6 +38,7 @@ public class holonomicTeleop extends LinearOpMode {
         right_back = hardwareMap.dcMotor.get("right_back");
         left_front = hardwareMap.dcMotor.get("left_front");
         left_back = hardwareMap.dcMotor.get("left_back");
+
         scissor1 = hardwareMap.dcMotor.get("scissor1");
         scissor2 = hardwareMap.dcMotor.get("scissor2");
         pinion = hardwareMap.dcMotor.get("pinion");
@@ -47,7 +48,6 @@ public class holonomicTeleop extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
-        capstone = hardwareMap.get(Servo.class, "capstone");
         armCapstone = hardwareMap.get(Servo.class, "arm_capstone");
 
         scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
@@ -158,6 +158,7 @@ public class holonomicTeleop extends LinearOpMode {
                  foundation1.setPosition(0);
                  foundation2.setPosition(0);
              }
+             /*
              // Capstone on Robot base
              boolean deposit = gamepad2.a;
              boolean retract = gamepad2.b;
@@ -166,6 +167,7 @@ public class holonomicTeleop extends LinearOpMode {
              } else if (retract == true) {
                  capstone.setPosition(0);
              }
+              */
 
              //Capstone on Arm
              boolean foldOut = gamepad2.x;

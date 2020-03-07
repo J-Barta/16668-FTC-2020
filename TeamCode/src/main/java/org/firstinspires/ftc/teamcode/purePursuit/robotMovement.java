@@ -71,9 +71,11 @@ public class robotMovement extends LinearOpMode {
         horizontalEncoder = hardwareMap.dcMotor.get("left_back");
 
          */
+        telemetry.addData(" Status", " Initializing");
+
         initDriveHardwareMap(rfName, rbName, lfName, lbName,  verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
 
-
+        telemetry.addData(" Status", " Waiting for Start");
         waitForStart();
         globalPositionUpdate = new globalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
@@ -83,7 +85,7 @@ public class robotMovement extends LinearOpMode {
         globalPositionUpdate.reverseNormalEncoder();
 
         if(opModeIsActive()) {
-            goToPosition(70, 70, 0.5,  90, 0.3, 90);
+            goToPosition(70, 70, 0.5,  90, 0.3, false, 90);
         }
 
 
@@ -98,11 +100,13 @@ public class robotMovement extends LinearOpMode {
      * @param movementSpeed
      * @param preferredAngle
      * @param turnSpeed
+     * @param doAbsoluteTurn
      * @param absoluteAngle
      */
 
 
-    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double turnSpeed, double absoluteAngle) {
+
+    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double turnSpeed,  boolean doAbsoluteTurn, double absoluteAngle) {
         /*
         This should calculate the initial movements that are necessary for arriving at the point
          */
@@ -123,10 +127,11 @@ public class robotMovement extends LinearOpMode {
         double movement_y = movementYPower*movementSpeed;
 
         double relativeTurnAngle = relativeAngleToPoint - Math.toRadians(180) + preferredAngle;
-        double movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
+        double movement_turn = Range.clip(relativeTurnAngle/30, -1, 1) * turnSpeed;
         if(distanceToTarget < 5) {
             movement_turn = 0;
         }
+
         double rightFront = movement_y - movement_turn - movement_x;
         double rightBack = -movement_y - movement_turn + movement_x;
         double leftFront = -movement_y + movement_turn + movement_x;
@@ -136,8 +141,6 @@ public class robotMovement extends LinearOpMode {
         leftFront = Range.clip(leftFront, -1, 1);
         leftBack = Range.clip(leftBack, -1, 1);
         rightBack = Range.clip(rightBack, -1, 1);
-
-
 
         right_front.setPower(rightFront);
         right_back.setPower(rightBack);
@@ -163,11 +166,20 @@ public class robotMovement extends LinearOpMode {
             movement_x = movementXPower*movementSpeed;
             movement_y = movementYPower*movementSpeed;
 
+
+            //movement_x = movementXPower;
+            //movement_y = movementYPower;
+
             relativeTurnAngle = relativeAngleToPoint - 180 + preferredAngle;
-            movement_turn = Range.clip(relativeTurnAngle/30, -1, 1) * turnSpeed;
+
+            movement_turn = Range.clip(relativeTurnAngle/30, -1, 1)*turnSpeed;
+
+            //movement_turn = Range.clip(relativeTurnAngle/30, -1, 1);
+
             if(distanceToTarget < 5) {
                 movement_turn = 0;
             }
+
             rightFront = movement_y - movement_turn - movement_x;
             rightBack = -movement_y - movement_turn + movement_x;
             leftFront = -movement_y + movement_turn + movement_x;
@@ -179,42 +191,45 @@ public class robotMovement extends LinearOpMode {
             rightBack = Range.clip(rightBack, -1, 1);
 
 
-
             right_front.setPower(rightFront);
             right_back.setPower(rightBack);
             left_front.setPower(leftFront);
             left_back.setPower(leftBack);
         }
+
         //Turns motors off
         right_front.setPower(0);
         right_back.setPower(0);
         left_front.setPower(0);
         left_back.setPower(0);
 
-        //Calculates the angle away from the
-        double angleFromTarget = Math.abs((globalPositionUpdate.returnOrientation()-90) - absoluteAngle);
+        if(doAbsoluteTurn == true) {
+            //Calculates the angle away from the target absolute angle
+            double angleFromTarget = Math.abs((globalPositionUpdate.returnOrientation()-90) - absoluteAngle);
 
-        while(opModeIsActive() && angleFromTarget > 2) {
-            relativeAngleToPoint = mathFunctions.AngleWrap(absoluteAngle - (globalPositionUpdate.returnOrientation()-90));
-            relativeTurnAngle = relativeAngleToPoint - 180 + absoluteAngle;
-            movement_turn = Range.clip(relativeTurnAngle/30, -1, 1) * turnSpeed;
+            while(opModeIsActive() && angleFromTarget > 2) {
+                relativeAngleToPoint = mathFunctions.AngleWrap(absoluteAngle - (globalPositionUpdate.returnOrientation()-90));
+                relativeTurnAngle = relativeAngleToPoint - 180 + absoluteAngle;
+                movement_turn = Range.clip(relativeTurnAngle/30, -1, 1) * turnSpeed;
 
-            rightFront = -movement_turn;
-            rightBack  = -movement_turn;
-            leftFront  = movement_turn;
-            leftBack   = movement_turn;
+                rightFront = -movement_turn;
+                rightBack  = -movement_turn;
+                leftFront  = movement_turn;
+                leftBack   = movement_turn;
 
-            right_front.setPower(rightFront);
-            right_back.setPower(rightBack);
-            left_front.setPower(leftFront);
-            left_back.setPower(leftBack);
+                right_front.setPower(rightFront);
+                right_back.setPower(rightBack);
+                left_front.setPower(leftFront);
+                left_back.setPower(leftBack);
+
+            }
+
+            right_front.setPower(0);
+            right_back.setPower(0);
+            left_front.setPower(0);
+            left_back.setPower(0);
 
         }
-
-        right_front.setPower(0);
-        right_back.setPower(0);
-        left_front.setPower(0);
-        left_back.setPower(0);
 
     }
     private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){

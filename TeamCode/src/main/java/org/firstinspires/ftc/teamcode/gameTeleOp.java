@@ -45,7 +45,6 @@ public class gameTeleOp extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "claw");
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
-        capstone = hardwareMap.get(Servo.class, "capstone");
         armCapstone = hardwareMap.get(Servo.class, "arm_capstone");
 
         scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
@@ -145,6 +144,7 @@ public class gameTeleOp extends LinearOpMode {
                  foundation1.setPosition(0);
                  foundation2.setPosition(0);
              }
+             /*
              // Capstone on Robot base
              boolean deposit = gamepad2.a;
              boolean retract = gamepad2.b;
@@ -153,6 +153,8 @@ public class gameTeleOp extends LinearOpMode {
              } else if (retract == true) {
                  capstone.setPosition(0);
              }
+
+              */
 
              //Capstone on Arm
              boolean foldOut = gamepad2.x;

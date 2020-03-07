@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Odometry;
+package org.firstinspires.ftc.teamcode.purePursuit;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,13 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.Odometry.OdometryGlobalCoordinatePosition;
+
 /**
  * Created by Sarthak on 10/4/2019.
  */
 
 @TeleOp(name = "Odometry Feed")
-
-public class OdometryPosition extends LinearOpMode {
+public class OdometryFeed extends LinearOpMode {
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;
     //Odometry Wheels
@@ -21,8 +22,8 @@ public class OdometryPosition extends LinearOpMode {
     final double COUNTS_PER_INCH = 307.699557;
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
-    String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_right";
-    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = rfName;
+    String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
+    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
     OdometryGlobalCoordinatePosition globalPositionUpdate;
 

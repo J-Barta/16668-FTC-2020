@@ -85,4 +85,11 @@ public class mathFunctions {
 
     }
 
+    public static double scaleTo(double value, double from, double to) {
+
+        double factor = value/from;
+        double newValue = factor*to;
+        return newValue;
+    }
+
 }
