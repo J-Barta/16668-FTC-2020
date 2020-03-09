@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -23,13 +22,21 @@ public class holonomicTeleop extends LinearOpMode {
     public Servo claw;
     public Servo foundation1;
     public Servo foundation2;
-    public Servo capstone;
     public Servo armCapstone;
+    public Servo rightMount;
+    public Servo rightGrabber;
+    public Servo leftMount;
+    public Servo leftGrabber;
 
     public TouchSensor scissor_touch;
 
     boolean claw_open;
     boolean claw_close;
+    boolean prevAState = false;
+    boolean currentAState = false;
+    boolean advanceAEngine;
+    double currentAEngineState = 1;
+    boolean prevBState = false;
     double scissor_power;
     double pinion_power;
 
@@ -49,10 +56,18 @@ public class holonomicTeleop extends LinearOpMode {
         foundation1 = hardwareMap.get(Servo.class, "foundation1");
         foundation2 = hardwareMap.get(Servo.class, "foundation2");
         armCapstone = hardwareMap.get(Servo.class, "arm_capstone");
+        rightMount = hardwareMap.get(Servo.class, "right_mount");
+        rightGrabber = hardwareMap.get(Servo.class, "right_grabber");
+        leftMount = hardwareMap.get(Servo.class, "left_mount");
+        leftGrabber = hardwareMap.get(Servo.class, "left_grabber");
 
         scissor_touch = hardwareMap.touchSensor.get("scissor_touch");
 
-
+        leftMount.setPosition(0);
+        leftGrabber.setPosition(1);
+        rightMount.setPosition(0.75);
+        sleep(1000);
+        rightGrabber.setPosition(0);
 
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_back.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -73,9 +88,33 @@ public class holonomicTeleop extends LinearOpMode {
         tape.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        waitForStart();
 
+
+
+        waitForStart();
         while(opModeIsActive()) {
+            boolean currentXState = gamepad2.a;
+            if(currentXState != prevAState && currentXState == true) {
+                advanceAEngine = true;
+            }
+            prevAState = currentXState;
+
+            if(advanceAEngine) {
+                if(currentAEngineState <5) {
+                    currentAEngineState += 1;
+                } else {
+                    currentAEngineState = 1;
+                }
+            }
+            if(currentAEngineState ==1) {
+
+            }
+
+            if(gamepad2.a) {
+                rightGrabber.setPosition(0);
+            }
+
+            advanceAEngine = false;
 
             float gamepad1LeftY = -gamepad1.left_stick_y;
             float gamepad1LeftX = gamepad1.left_stick_x;
