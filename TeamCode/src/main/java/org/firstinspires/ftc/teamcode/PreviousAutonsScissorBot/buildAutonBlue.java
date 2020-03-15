@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name="Blue Build Auton")
 public class buildAutonBlue extends LinearOpMode {
+    public DcMotor right_front_encoder;
     public DcMotor right_front;
     public DcMotor right_back;
     public DcMotor left_front;
@@ -48,6 +49,7 @@ public class buildAutonBlue extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        right_front_encoder = hardwareMap.dcMotor.get("right_front");
         right_front = hardwareMap.dcMotor.get("right_front");
         right_back = hardwareMap.dcMotor.get("right_back");
         left_front = hardwareMap.dcMotor.get("left_front");
@@ -76,6 +78,7 @@ public class buildAutonBlue extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
+        right_front_encoder.setDirection(DcMotorSimple.Direction.FORWARD);
         right_front.setDirection(DcMotorSimple.Direction.FORWARD);
         right_back.setDirection(DcMotorSimple.Direction.FORWARD);
         left_front.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -84,6 +87,7 @@ public class buildAutonBlue extends LinearOpMode {
         scissor2.setDirection(DcMotorSimple.Direction.REVERSE);
         pinion.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        right_front_encoder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -188,7 +192,7 @@ public class buildAutonBlue extends LinearOpMode {
         pinion.setPower(-1);
         setPowers(-0.25, -0.25, -0.25, -0.25);
         encoderCounts = encoderCounts;
-        while (right_front.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
+        while (right_front_encoder.getCurrentPosition() > -encoderCounts && opModeIsActive()) {
             sleep(5);
 
             if(pinion.getCurrentPosition() < -288*1.5) {
@@ -252,7 +256,7 @@ public class buildAutonBlue extends LinearOpMode {
         if(power < 0) {
 
             //Left subroutine
-            while(right_front.getCurrentPosition() < counts) {
+            while(right_front_encoder.getCurrentPosition() < counts) {
                 sleep(5);
                 if(opModeIsActive() == false) {
                     break;
@@ -263,7 +267,7 @@ public class buildAutonBlue extends LinearOpMode {
         } else if (power > 0) {
             counts = counts * -1;
             //right subroutine
-            while(right_front.getCurrentPosition()> counts) {
+            while(right_front_encoder.getCurrentPosition()> counts) {
                 sleep(5);
                 if(opModeIsActive() == false) {
                     break;
@@ -287,7 +291,7 @@ public class buildAutonBlue extends LinearOpMode {
         setPowers(Power, Power, Power, Power);
         if(Power < 0) {
             encoderCounts = encoderCounts *-1;
-            while(right_front.getCurrentPosition() > encoderCounts) {
+            while(right_front_encoder.getCurrentPosition() > encoderCounts) {
                 sleep(5);
                 if(opModeIsActive() == false) {
                     break;
@@ -296,7 +300,7 @@ public class buildAutonBlue extends LinearOpMode {
             setBrakeBehavior();
             setPowers(0,0,0,0);
         } else if(Power >0) {
-            while(right_front.getCurrentPosition() < encoderCounts) {
+            while(right_front_encoder.getCurrentPosition() < encoderCounts) {
                 sleep(5);
                 if(opModeIsActive() == false) {
                     break;
@@ -312,24 +316,28 @@ public class buildAutonBlue extends LinearOpMode {
         useEncoder();
     }
     public void resetEncoder() {
+        right_front_encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         right_front.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         right_back.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_front.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_back.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public void useEncoder() {
-        right_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        right_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left_front.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left_back.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right_front_encoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right_front.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        right_back.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        left_front.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        left_back.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
     public void setPowers(double right_front_power, double right_back_power, double left_front_power, double left_back_power) {
+        //right_front_encoder.setPower(right_front_power);
         right_front.setPower(right_front_power);
         right_back.setPower(right_back_power);
         left_front.setPower(left_front_power);
         left_back.setPower(left_back_power);
     }
     public void setBrakeBehavior() {
+        right_front_encoder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
