@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
+import java.lang.Math.*;
 
 public class robotMovementRadians extends LinearOpMode {
     globalCoordinatePosition globalPositionUpdate;
@@ -102,6 +103,12 @@ public class robotMovementRadians extends LinearOpMode {
         double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
         while(opModeIsActive() && distanceToTarget > 1) {
+            double absoluteAngleToTarget = Math.atan2(y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH), x-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
+
+            double relativeAngleToPoint = absoluteAngleToTarget - Math.toRadians(mathFunctions.interpretAngle(globalPositionUpdate.returnOrientation())) - Math.toRadians(90);
+
+            distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
+
 
             telemetry.addData( " x" , movement_x);
             telemetry.addData(" y", movement_y);
