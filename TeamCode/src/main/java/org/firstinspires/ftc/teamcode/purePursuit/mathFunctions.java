@@ -8,16 +8,16 @@ import static java.lang.Math.*;
 
 public class mathFunctions {
     /**
-     * Make sure angle is within 0 to 360 degrees
+     * Make sure angle is within -180 to 180 degrees
      * @param angle
      * @return
      */
     public static double AngleWrap(double angle) {
-       while(angle <-180) {
-           angle += 1;
+       while(angle < -PI) {
+           angle += 2 * PI;
        }
-       while(angle > 180) {
-           angle -= 1;
+       while(angle > PI) {
+           angle -= 2 * PI;
        }
        return angle;
     }

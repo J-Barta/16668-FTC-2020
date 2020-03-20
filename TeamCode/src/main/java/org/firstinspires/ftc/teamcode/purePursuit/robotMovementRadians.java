@@ -7,40 +7,7 @@ import com.qualcomm.robotcore.util.Range;
 
 public class robotMovementRadians extends LinearOpMode {
     globalCoordinatePosition globalPositionUpdate;
-    /*
-    public static void followCurve(ArrayList<curvePoint> allPoints, double followAngle) {
 
-    }
-
-    public  curvePoint getFollowPointPath(ArrayList<curvePoint> pathPoints,Point robotLocation, double xPos, double yPos, double followRadius) {
-        curvePoint followMe = new curvePoint(pathPoints.get(0));
-
-
-        for(int i = 0; i < pathPoints.size() - 1; i++) {
-            curvePoint startLine = pathPoints.get(i);
-            curvePoint endLine = pathPoints.get(i+1);
-
-            ArrayList<Point> intersections = mathFunctions.lineCircleIntersection(robotLocation, followRadius, startLine.toPoint(startLine), endLine.toPoint(endLine));
-
-
-            double closestAngle = 1000000000;
-
-            for(Point thisIntersection : intersections) {
-                double angle = Math.atan2(thisIntersection.y - globalPositionUpdate.returnYCoordinate(), thisIntersection.x - globalPositionUpdate.returnXCoordinate());
-
-                double deltaAngle = Math.abs(mathFunctions.AngleWrap(angle - globalPositionUpdate.returnOrientation()));
-
-                if(deltaAngle < closestAngle) {
-                    closestAngle = deltaAngle;
-                    followMe.setPoint(thisIntersection);
-                }
-            }
-
-        }
-        return followMe;
-    }
-
-     */
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
     String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
@@ -102,6 +69,30 @@ public class robotMovementRadians extends LinearOpMode {
         double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
         while(opModeIsActive() && distanceToTarget > 1) {
+            double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+            double robotY = globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+            double robotOrientation = Math.toRadians(mathFunctions.interpretAngle(globalPositionUpdate.returnOrientation()));
+
+            distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
+
+            double absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
+            double relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation - Math.toRadians(90)));
+
+            double relativeXToPoint = Math.cos(relativeAngleToTarget) * distanceToTarget;
+            double relativeYToPoint = Math.sin(relativeAngleToTarget) * distanceToTarget;
+
+            double movementXPower = relativeXToPoint / (Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint));
+            double movementYPower = relativeYToPoint / (Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint));
+
+            movement_x = movementXPower * movementSpeed;
+            movement_y = movementYPower * movementSpeed;
+
+            double relativeTurnAngle = relativeAngleToTarget - Math.toRadians(180) + preferredAngle;
+            movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
+
+            if(distanceToTarget < 5) {
+                movement_turn = 0;
+            }
 
             telemetry.addData( " x" , movement_x);
             telemetry.addData(" y", movement_y);

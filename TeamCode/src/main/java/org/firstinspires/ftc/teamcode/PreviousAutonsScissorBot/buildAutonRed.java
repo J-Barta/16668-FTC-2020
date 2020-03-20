@@ -103,7 +103,6 @@ public class buildAutonRed extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
-            //hello
             foundation1.setPosition(0);
             foundation2.setPosition(0);
             driveStraight(0.25, 25);
