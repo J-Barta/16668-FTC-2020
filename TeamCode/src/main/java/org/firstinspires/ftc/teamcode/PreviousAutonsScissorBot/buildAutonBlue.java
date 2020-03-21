@@ -49,6 +49,7 @@ public class buildAutonBlue extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //test
         right_front_encoder = hardwareMap.dcMotor.get("right_front");
         right_front = hardwareMap.dcMotor.get("right_front");
         right_back = hardwareMap.dcMotor.get("right_back");
