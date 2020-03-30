@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.purePursuit;
 
 import org.firstinspires.ftc.teamcode.OpenCVNecessaryLibraries.Point;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static java.lang.Math.*;
@@ -110,6 +111,16 @@ public class mathFunctions {
         } else {
             return Orientation;
         }
+    }
+
+    public static double[] findPosition(double startX, double startY, double startOrientation, double returnedX, double returnedY, double returnedOrientation) {
+        double[] absolutePosition = new double[3];
+
+        absolutePosition[0] = startX + returnedX;
+        absolutePosition[1] = startY + returnedY;
+        absolutePosition[2] = mathFunctions.AngleWrap(startOrientation + returnedOrientation);
+
+        return absolutePosition;
     }
 
 

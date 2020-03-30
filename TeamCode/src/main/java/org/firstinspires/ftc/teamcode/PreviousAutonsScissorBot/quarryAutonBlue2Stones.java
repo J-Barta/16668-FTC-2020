@@ -103,7 +103,6 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
 
         waitForStart();
         if (opModeIsActive()) {
-
             claw.setPosition(1);
             driveAndSetArm();
             distanceDrive(-0.125, 75);
@@ -158,7 +157,6 @@ public class quarryAutonBlue2Stones extends LinearOpMode {
             if(right_front.getCurrentPosition() <= -encoderCounts) {
                 setPowers(0,0,0,0);
             }
-
             if(opModeIsActive() == false) {
                 break;
             }

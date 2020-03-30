@@ -34,13 +34,15 @@ public class robotMovementRadians extends LinearOpMode {
 
         telemetry.addData(" Status", " Waiting for Start");
         telemetry.update();
-        waitForStart();
+
         globalPositionUpdate = new globalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
 
         globalPositionUpdate.reverseRightEncoder();
         globalPositionUpdate.reverseNormalEncoder();
+
+        waitForStart();
 
         if(opModeIsActive()) {
             goToPosition(0, 24, 0.25,  0, 0.3, false, 90);
