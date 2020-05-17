@@ -47,7 +47,11 @@ public class robotMovementRadians extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
-            goToPosition(0, 24, -0.25,  0, 0.3, false, 90);
+            goToPosition(-24, 24, 0.5, 0, 2, 0.3, false, 90);
+            goToPosition(-24, -24, 0.5, 0, 2, 0.3, false, 90);
+            goToPosition(0, 0, 0.4, 0, 0.5, 0.3, false, 90);
+            goToPosition(-12, 0, 0.4, 0, 0.5, 0.3, false, 90);
+            goToPosition(0, 0, 0.4, 0, 0.5, 0.3, false, 90);
         }
 
 
@@ -68,11 +72,11 @@ public class robotMovementRadians extends LinearOpMode {
 
 
 
-    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double turnSpeed,  boolean doAbsoluteTurn, double absoluteAngle) {
+    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double error, double turnSpeed,  boolean doAbsoluteTurn, double absoluteAngle) {
         double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
-        while(opModeIsActive() && distanceToTarget > 1) {
-            double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+        while(opModeIsActive() && distanceToTarget > error) {
+            double robotX = -globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
             double robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
             double robotOrientation = Math.toRadians(mathFunctions.interpretAngle(globalPositionUpdate.returnOrientation()));
 
@@ -102,6 +106,7 @@ public class robotMovementRadians extends LinearOpMode {
             telemetry.addData( " x" , movement_x);
             telemetry.addData(" y", movement_y);
             telemetry.addData(" theta", movement_turn);
+            telemetry.addData( " Distance to Target", distanceToTarget);
             telemetry.addData(" xpos", robotX);
             telemetry.addData(" ypos", robotY);
             telemetry.addData(" orientation", robotOrientation);
@@ -110,8 +115,10 @@ public class robotMovementRadians extends LinearOpMode {
             /*
             movement_x = 0;
             movement_y = 0;
-            */
+
+             */
             movement_turn = 0;
+
 
             double leftFront = -movement_y - movement_x - movement_turn;
             double rightFront = movement_y - movement_x - movement_turn;
