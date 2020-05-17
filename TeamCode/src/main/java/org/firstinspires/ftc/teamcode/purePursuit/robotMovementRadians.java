@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.purePursuit;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
+@Autonomous(name="Robot Movement Radians")
 public class robotMovementRadians extends LinearOpMode {
     globalCoordinatePosition globalPositionUpdate;
 
@@ -45,8 +47,7 @@ public class robotMovementRadians extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
-            goToPosition(0, 24, 0.25,  0, 0.3, false, 90);
-            //goToPosition(12, -24, -0.25,  90, 0.3, false, 90);
+            goToPosition(0, 24, -0.25,  0, 0.3, false, 90);
         }
 
 
@@ -68,17 +69,17 @@ public class robotMovementRadians extends LinearOpMode {
 
 
     public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double turnSpeed,  boolean doAbsoluteTurn, double absoluteAngle) {
-        double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
+        double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
         while(opModeIsActive() && distanceToTarget > 1) {
             double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
-            double robotY = globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+            double robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
             double robotOrientation = Math.toRadians(mathFunctions.interpretAngle(globalPositionUpdate.returnOrientation()));
 
-            distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
+            distanceToTarget = Math.hypot(x-(robotX), y-(robotY));
 
             double absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
-            double relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation - Math.toRadians(90)));
+            double relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation));
 
             double relativeXToPoint = Math.cos(relativeAngleToTarget) * distanceToTarget;
             double relativeYToPoint = Math.sin(relativeAngleToTarget) * distanceToTarget;
@@ -89,8 +90,10 @@ public class robotMovementRadians extends LinearOpMode {
             movement_x = movementXPower * movementSpeed;
             movement_y = movementYPower * movementSpeed;
 
-            double relativeTurnAngle = relativeAngleToTarget - Math.toRadians(180) + preferredAngle;
+            double relativeTurnAngle = relativeAngleToTarget - Math.toRadians(90) + Math.toRadians(preferredAngle);
             movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
+
+
 
             if(distanceToTarget < 5) {
                 movement_turn = 0;
@@ -99,8 +102,16 @@ public class robotMovementRadians extends LinearOpMode {
             telemetry.addData( " x" , movement_x);
             telemetry.addData(" y", movement_y);
             telemetry.addData(" theta", movement_turn);
-            telemetry.addData(" Orientation", globalPositionUpdate.returnOrientation());
-            telemetry.addData(" Distance to Target", distanceToTarget);
+            telemetry.addData(" xpos", robotX);
+            telemetry.addData(" ypos", robotY);
+            telemetry.addData(" orientation", robotOrientation);
+            telemetry.update();
+
+            /*
+            movement_x = 0;
+            movement_y = 0;
+            */
+            movement_turn = 0;
 
             double leftFront = -movement_y - movement_x - movement_turn;
             double rightFront = movement_y - movement_x - movement_turn;
@@ -139,12 +150,6 @@ public class robotMovementRadians extends LinearOpMode {
             rightFront = Range.clip(rightFront, -1, 1);
             rightBack = Range.clip(rightBack, -1, 1);
             leftBack = Range.clip(leftBack, -1, 1);
-
-            telemetry.addData(" lf", leftFront);
-            telemetry.addData(" rf", rightFront);
-            telemetry.addData(" rb", rightBack);
-            telemetry.addData(" lb", leftBack);
-            telemetry.update();
 
             right_front.setPower(rightFront);
             right_back.setPower(rightBack);
