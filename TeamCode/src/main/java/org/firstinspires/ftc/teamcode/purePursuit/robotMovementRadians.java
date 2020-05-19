@@ -21,10 +21,6 @@ public class robotMovementRadians extends LinearOpMode {
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 307.699557;
 
-    double movement_x;
-    double movement_y;
-    double movement_turn;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -47,11 +43,7 @@ public class robotMovementRadians extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
-            goToPosition(-24, 24, 0.5, 0, 2, 0.3, false, 90);
-            goToPosition(-24, -24, 0.5, 0, 2, 0.3, false, 90);
-            goToPosition(0, 0, 0.4, 0, 0.5, 0.3, false, 90);
-            goToPosition(-12, 0, 0.4, 0, 0.5, 0.3, false, 90);
-            goToPosition(0, 0, 0.4, 0, 0.5, 0.3, false, 90);
+            goToPosition(24, 0, 0.5, 0, 2, 0.3, false, 90);
         }
 
 
@@ -61,17 +53,15 @@ public class robotMovementRadians extends LinearOpMode {
 
     /**
      *
-     * @param x
-     * @param y
-     * @param movementSpeed
-     * @param preferredAngle
-     * @param turnSpeed
-     * @param doAbsoluteTurn
-     * @param absoluteAngle
+     * @param x X point to go to
+     * @param y Y point to go to
+     * @param movementSpeed Maximum linear speed
+     * @param preferredAngle Angle that you want the robot to move toward the point at
+     * @param error How close to the point you want the robot to get
+     * @param turnSpeed How fast the robot can turn
+     * @param doAbsoluteTurn Do another turn at the end of the movement?
+     * @param absoluteAngle To what angle should the absolute turn go?
      */
-
-
-
     public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double error, double turnSpeed,  boolean doAbsoluteTurn, double absoluteAngle) {
         double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
@@ -88,16 +78,15 @@ public class robotMovementRadians extends LinearOpMode {
             double relativeXToPoint = Math.cos(relativeAngleToTarget) * distanceToTarget;
             double relativeYToPoint = Math.sin(relativeAngleToTarget) * distanceToTarget;
 
-            double movementXPower = relativeXToPoint / (Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint));
-            double movementYPower = relativeYToPoint / (Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint));
+            double MovementPowerDenominator = Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint);
+            double movementXPower = relativeXToPoint / MovementPowerDenominator;
+            double movementYPower = relativeYToPoint / MovementPowerDenominator;
 
-            movement_x = movementXPower * movementSpeed;
-            movement_y = movementYPower * movementSpeed;
+            double movement_x = movementXPower * movementSpeed;
+            double movement_y = movementYPower * movementSpeed;
 
-            double relativeTurnAngle = relativeAngleToTarget - Math.toRadians(90) + Math.toRadians(preferredAngle);
-            movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
-
-
+            double relativeTurnAngle = relativeAngleToTarget + Math.toRadians(90) + Math.toRadians(preferredAngle);
+            double movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
 
             if(distanceToTarget < 5) {
                 movement_turn = 0;
@@ -107,16 +96,17 @@ public class robotMovementRadians extends LinearOpMode {
             telemetry.addData(" y", movement_y);
             telemetry.addData(" theta", movement_turn);
             telemetry.addData( " Distance to Target", distanceToTarget);
+            telemetry.addData( " Absolute Angle to Target", Math.toDegrees(absoluteAngleToTarget));
+            telemetry.addData( " Relative to Target", Math.toDegrees(relativeAngleToTarget));
+            telemetry.addData( " Relative Turn Angle", Math.toDegrees(relativeTurnAngle));
             telemetry.addData(" xpos", robotX);
             telemetry.addData(" ypos", robotY);
             telemetry.addData(" orientation", robotOrientation);
             telemetry.update();
 
-            /*
-            movement_x = 0;
-            movement_y = 0;
 
-             */
+            //movement_x = 0;
+            //movement_y = 0;
             movement_turn = 0;
 
 
@@ -172,7 +162,13 @@ public class robotMovementRadians extends LinearOpMode {
 
 
     }
-    private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
+    public double relativeXFinder(double relativeX) {
+        return (-globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH) + relativeX;
+    }
+    public double relativeYFinder(double relativeY) {
+        return (-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH) + relativeY;
+    }
+    public void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
         right_front = hardwareMap.dcMotor.get(rfName);
         right_back = hardwareMap.dcMotor.get(rbName);
         left_front = hardwareMap.dcMotor.get(lfName);
