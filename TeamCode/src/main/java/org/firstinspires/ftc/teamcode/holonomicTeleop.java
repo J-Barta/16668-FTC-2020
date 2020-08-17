@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Holonomic TeleOp")
+@TeleOp(name="Primary TeleOp")
 public class holonomicTeleop extends LinearOpMode {
     public DcMotor right_front;
     public DcMotor right_back;

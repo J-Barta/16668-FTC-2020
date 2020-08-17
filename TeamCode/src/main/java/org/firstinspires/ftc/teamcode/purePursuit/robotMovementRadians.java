@@ -107,13 +107,13 @@ public class robotMovementRadians extends LinearOpMode {
 
             //movement_x = 0;
             //movement_y = 0;
-            movement_turn = 0;
+            //movement_turn = 0;
 
 
-            double leftFront = -movement_y - movement_x - movement_turn;
-            double rightFront = movement_y - movement_x - movement_turn;
-            double rightBack = movement_y + movement_x - movement_turn;
-            double leftBack = -movement_y + movement_x - movement_turn;
+            double leftFront = -movement_y - movement_x + movement_turn;
+            double rightFront = movement_y - movement_x + movement_turn;
+            double rightBack = movement_y + movement_x + movement_turn;
+            double leftBack = -movement_y + movement_x + movement_turn;
 
             //Scale Motor Powers to preserve movement shape
             double lfAbs = Math.abs(leftFront);

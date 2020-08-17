@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.purePursuit;
 
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+@Autonomous(name="Test Odometry Autonomous")
 public class TestAutonOdometry extends robotMovementRadians {
 
    @Override
