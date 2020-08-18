@@ -6,9 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
-//Test
+/*This class handles all robot movement with odometry. Use this as a superclass for
+  future Autons. See TestAutonOdometry to see how.
+ */
 @Autonomous(name="Robot Movement Radians")
 public class robotMovementRadians extends LinearOpMode {
+
+    //Initialize motors and encoders
+
     globalCoordinatePosition globalPositionUpdate;
 
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
@@ -22,6 +27,7 @@ public class robotMovementRadians extends LinearOpMode {
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 307.699557;
 
+    //Initialize HardwareMap and get ready to run the OpMode
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,6 +57,8 @@ public class robotMovementRadians extends LinearOpMode {
         globalPositionUpdate.stop();
 
     }
+
+    //This function handles the acutal momvemnt of the robot.
 
     /**
      *
@@ -93,6 +101,9 @@ public class robotMovementRadians extends LinearOpMode {
                 movement_turn = 0;
             }
 
+
+            //Lots of Telemetry. Remove some of this.
+
             telemetry.addData( " x" , movement_x);
             telemetry.addData(" y", movement_y);
             telemetry.addData(" theta", movement_turn);
@@ -105,7 +116,7 @@ public class robotMovementRadians extends LinearOpMode {
             telemetry.addData(" orientation", robotOrientation);
             telemetry.update();
 
-
+            //Testing values
             //movement_x = 0;
             //movement_y = 0;
             //movement_turn = 0;
@@ -163,12 +174,9 @@ public class robotMovementRadians extends LinearOpMode {
 
 
     }
-    public double relativeXFinder(double relativeX) {
-        return (-globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH) + relativeX;
-    }
-    public double relativeYFinder(double relativeY) {
-        return (-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH) + relativeY;
-    }
+
+
+    //Function to initialize all the motors and encoders. Used when preparing for the OpMode to start.
     public void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
         right_front = hardwareMap.dcMotor.get(rfName);
         right_back = hardwareMap.dcMotor.get(rbName);
