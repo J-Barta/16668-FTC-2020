@@ -27,11 +27,11 @@ public class TestAutonOdometry extends robotMovementRadians {
         waitForStart();
 
         if(opModeIsActive()) {
-            goToPosition(-24, 24, 0.5, 0, 2, 0.3, false, 90);
-            goToPosition(-24 , -24, 0.5, 0, 2, 0.3, false, 90);
-            goToPosition(0, 0, 0.4, 0, 0.5, 0.3, false, 90);
-            goToPosition(-12, 0, 0.4, 0, 0.5, 0.3, false, 90);
-            goToPosition(0, 0, 0.4, 0, 0.5, 0.3, false, 90);
+            goToPosition(-24, 24, 0.5, 0, 2, 0.3);
+            goToPosition(-24 , -24, 0.5, 0, 2, 0.3);
+            goToPosition(0, 0, 0.4, 0, 0.5, 0.3);
+            goToPosition(-12, 0, 0.4, 0, 0.5, 0.3);
+            goToPosition(0, 0, 0.4, 0, 0.5, 0.3);
         }
 
 

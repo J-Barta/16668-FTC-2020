@@ -6,7 +6,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
-/*This class handles all robot movement with odometry. Use this as a superclass for
+import static java.lang.Math.abs;
+import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
+import static org.firstinspires.ftc.teamcode.purePursuit.mathFunctions.interpretAngle;
+
+/*
+    This class handles all robot movement with odometry. Use this as a superclass for
   future Autons. See TestAutonOdometry to see how.
  */
 @Autonomous(name="Robot Movement Radians")
@@ -14,7 +20,7 @@ public class robotMovementRadians extends LinearOpMode {
 
     //Initialize motors and encoders
 
-    globalCoordinatePosition globalPositionUpdate;
+
 
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
     String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
@@ -26,6 +32,8 @@ public class robotMovementRadians extends LinearOpMode {
 
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 307.699557;
+
+    globalCoordinatePosition globalPositionUpdate;
 
     //Initialize HardwareMap and get ready to run the OpMode
 
@@ -50,7 +58,7 @@ public class robotMovementRadians extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
-            goToPosition(24, 0, 0.5, 0, 2, 0.3, false, 90);
+            goToPosition(24, 0, 0.25, 90, 2, 0.3);
         }
 
 
@@ -68,16 +76,14 @@ public class robotMovementRadians extends LinearOpMode {
      * @param preferredAngle Angle that you want the robot to move toward the point at
      * @param error How close to the point you want the robot to get
      * @param turnSpeed How fast the robot can turn
-     * @param doAbsoluteTurn Do another turn at the end of the movement?
-     * @param absoluteAngle To what angle should the absolute turn go?
      */
-    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double error, double turnSpeed,  boolean doAbsoluteTurn, double absoluteAngle) {
+    public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double error, double turnSpeed) {
         double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
         while(opModeIsActive() && distanceToTarget > error) {
-            double robotX = -globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+            double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
             double robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
-            double robotOrientation = Math.toRadians(mathFunctions.interpretAngle(globalPositionUpdate.returnOrientation()));
+            double robotOrientation = toRadians(interpretAngle(globalPositionUpdate.returnOrientation()));
 
             distanceToTarget = Math.hypot(x-(robotX), y-(robotY));
 
@@ -87,15 +93,15 @@ public class robotMovementRadians extends LinearOpMode {
             double relativeXToPoint = Math.cos(relativeAngleToTarget) * distanceToTarget;
             double relativeYToPoint = Math.sin(relativeAngleToTarget) * distanceToTarget;
 
-            double MovementPowerDenominator = Math.abs(relativeXToPoint) + Math.abs(relativeYToPoint);
+            double MovementPowerDenominator = abs(relativeXToPoint) + abs(relativeYToPoint);
             double movementXPower = relativeXToPoint / MovementPowerDenominator;
             double movementYPower = relativeYToPoint / MovementPowerDenominator;
 
             double movement_x = movementXPower * movementSpeed;
             double movement_y = movementYPower * movementSpeed;
 
-            double relativeTurnAngle = relativeAngleToTarget - Math.toRadians(180) + Math.toRadians(preferredAngle);
-            double movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
+            double relativeTurnAngle = relativeAngleToTarget - toRadians(180) + toRadians(preferredAngle);
+            double movement_turn = Range.clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
 
             if(distanceToTarget < 5) {
                 movement_turn = 0;
@@ -112,14 +118,15 @@ public class robotMovementRadians extends LinearOpMode {
             telemetry.addData( " Relative to Target", Math.toDegrees(relativeAngleToTarget));
             telemetry.addData( " Relative Turn Angle", Math.toDegrees(relativeTurnAngle));
             telemetry.addData(" xpos", robotX);
+            telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
             telemetry.addData(" ypos", robotY);
-            telemetry.addData(" orientation", robotOrientation);
+            telemetry.addData(" orientation", toDegrees(robotOrientation));
             telemetry.update();
 
             //Testing values
-            //movement_x = 0;
-            //movement_y = 0;
-            //movement_turn = 0;
+            movement_x = 0;
+            movement_y = 0;
+            movement_turn = 0;
 
 
             double leftFront = -movement_y - movement_x + movement_turn;
@@ -128,10 +135,10 @@ public class robotMovementRadians extends LinearOpMode {
             double leftBack = -movement_y + movement_x + movement_turn;
 
             //Scale Motor Powers to preserve movement shape
-            double lfAbs = Math.abs(leftFront);
-            double rfAbs = Math.abs(rightFront);
-            double rbAbs = Math.abs(rightBack);
-            double lbAbs = Math.abs(leftBack);
+            double lfAbs = abs(leftFront);
+            double rfAbs = abs(rightFront);
+            double rbAbs = abs(rightBack);
+            double lbAbs = abs(leftBack);
 
             if(lfAbs > rfAbs && lfAbs > rbAbs && lfAbs > lbAbs && lfAbs > 1) {
                 leftFront = leftFront/lfAbs;
@@ -210,6 +217,12 @@ public class robotMovementRadians extends LinearOpMode {
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
 
         left_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);

@@ -22,9 +22,9 @@ public class mathFunctions {
     }
 
     public static boolean isWithin(double value, double min, double max) {
-        if(value > max) {
+        if(value >= max) {
             return false;
-        } else if (value < min) {
+        } else if (value <= min) {
             return false;
         } else {
             return true;
@@ -33,9 +33,9 @@ public class mathFunctions {
 
     public static double interpretAngle(double Orientation) {
         if(isWithin(Orientation, -180, 0)) {
-            return Math.abs(Orientation);
-        } else if (isWithin(Orientation, -360, -181)) {
-            double newOrientation = -1 *(Orientation +360);
+            return Orientation;
+        } else if (isWithin(Orientation, -360, -180)) {
+            double newOrientation = (Orientation +360);
             return newOrientation;
         } else {
             return Orientation;
