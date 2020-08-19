@@ -94,7 +94,7 @@ public class robotMovementRadians extends LinearOpMode {
             double movement_x = movementXPower * movementSpeed;
             double movement_y = movementYPower * movementSpeed;
 
-            double relativeTurnAngle = relativeAngleToTarget + Math.toRadians(90) + Math.toRadians(preferredAngle);
+            double relativeTurnAngle = relativeAngleToTarget - Math.toRadians(180) + Math.toRadians(preferredAngle);
             double movement_turn = Range.clip(relativeTurnAngle/Math.toRadians(30), -1, 1) * turnSpeed;
 
             if(distanceToTarget < 5) {
