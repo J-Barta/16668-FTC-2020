@@ -1,15 +1,15 @@
-package org.firstinspires.ftc.teamcode.purePursuit;
+package org.firstinspires.ftc.teamcode.Odometry;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.Range;
 
-import static org.firstinspires.ftc.teamcode.purePursuit.mathFunctions.interpretAngle;
+import static org.firstinspires.ftc.teamcode.Odometry.mathFunctions.interpretAngle;
 
 
-@TeleOp(name = "Odometry Feed")
+@TeleOp(name = "Odometry feed")
 public class OdometryFeed extends LinearOpMode {
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.purePursuit;
+package org.firstinspires.ftc.teamcode.Odometry;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -7,47 +7,35 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
-import static org.firstinspires.ftc.teamcode.purePursuit.mathFunctions.interpretAngle;
-
-/*
-    This class handles all robot movement with odometry. Use this as a superclass for
-  future Autons. See TestAutonOdometry to see how.
- */
-@Autonomous(name="Robot Movement Radians")
-public class robotMovementRadians extends LinearOpMode {
-
-    //Initialize motors and encoders
+import static org.firstinspires.ftc.teamcode.Odometry.mathFunctions.interpretAngle;
 
 
+@Autonomous(name = "Robot Movement Test")
+public class RobotMovementTest extends LinearOpMode {
+    //Drive motors
+    DcMotor right_front, right_back, left_front, left_back;
+    //Odometry Wheels
+    DcMotor verticalLeft, verticalRight, horizontal;
 
+    final double COUNTS_PER_INCH = 307.699557;
+
+    //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
     String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
-    public DcMotor right_front;
-    public DcMotor right_back;
-    public DcMotor left_front;
-    public DcMotor left_back;
-
-    DcMotor verticalLeft, verticalRight, horizontal;
-    final double COUNTS_PER_INCH = 307.699557;
-
     globalCoordinatePosition globalPositionUpdate;
-
-    //Initialize HardwareMap and get ready to run the OpMode
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
+        initDriveHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
 
-        telemetry.addData(" Status", " Initializing");
+        telemetry.addData("Status", "Init Complete");
         telemetry.update();
+        waitForStart();
 
-        initDriveHardwareMap(rfName, rbName, lfName, lbName,  verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
-
-        telemetry.addData(" Status", " Waiting for Start");
-        telemetry.update();
-
+        //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions
         globalPositionUpdate = new globalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
@@ -55,28 +43,24 @@ public class robotMovementRadians extends LinearOpMode {
         globalPositionUpdate.reverseRightEncoder();
         globalPositionUpdate.reverseNormalEncoder();
 
-        waitForStart();
-
-        if(opModeIsActive()) {
+        if (opModeIsActive()) {
             goToPosition(24, 0, 0.25, 90, 2, 0.3);
         }
 
-
+        //Stop the thread
         globalPositionUpdate.stop();
 
     }
 
-    //This function handles the acutal momvemnt of the robot.
-
     /**
-     *
      * @param x X point to go to
      * @param y Y point to go to
      * @param movementSpeed Maximum linear speed
      * @param preferredAngle Angle that you want the robot to move toward the point at
-     * @param error How close to the point you want the robot to get
+     * @param error How close to the point you want the robot to get (in inches)
      * @param turnSpeed How fast the robot can turn
      */
+
     public void goToPosition(double x, double y, double movementSpeed, double preferredAngle, double error, double turnSpeed) {
         double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
 
@@ -110,17 +94,14 @@ public class robotMovementRadians extends LinearOpMode {
 
             //Lots of Telemetry. Remove some of this.
 
-            telemetry.addData( " x" , movement_x);
-            telemetry.addData(" y", movement_y);
-            telemetry.addData(" theta", movement_turn);
-            telemetry.addData( " Distance to Target", distanceToTarget);
-            telemetry.addData( " Absolute Angle to Target", Math.toDegrees(absoluteAngleToTarget));
-            telemetry.addData( " Relative to Target", Math.toDegrees(relativeAngleToTarget));
-            telemetry.addData( " Relative Turn Angle", Math.toDegrees(relativeTurnAngle));
-            telemetry.addData(" xpos", robotX);
+            //Display Global (x, y, theta) coordinates
             telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
-            telemetry.addData(" ypos", robotY);
-            telemetry.addData(" orientation", toDegrees(robotOrientation));
+            telemetry.addData("Y Position", -globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData("Orientation (Degrees)", interpretAngle(globalPositionUpdate.returnOrientation()));
+            telemetry.addData("Unchanged Orientation", globalPositionUpdate.returnOrientation());
+            telemetry.addData("Vertical left encoder position", verticalLeft.getCurrentPosition());
+            telemetry.addData("Vertical right encoder position", verticalRight.getCurrentPosition());
+            telemetry.addData("horizontal encoder position", horizontal.getCurrentPosition());
             telemetry.update();
 
             //Testing values
@@ -182,9 +163,7 @@ public class robotMovementRadians extends LinearOpMode {
 
     }
 
-
-    //Function to initialize all the motors and encoders. Used when preparing for the OpMode to start.
-    public void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
+    private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
         right_front = hardwareMap.dcMotor.get(rfName);
         right_back = hardwareMap.dcMotor.get(rbName);
         left_front = hardwareMap.dcMotor.get(lfName);
@@ -213,24 +192,16 @@ public class robotMovementRadians extends LinearOpMode {
         horizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-
         left_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_back.setDirection(DcMotorSimple.Direction.REVERSE);
-        left_back.setDirection(DcMotorSimple.Direction.REVERSE);
 
         telemetry.addData("Status", "Hardware Map Init Complete");
         telemetry.update();
     }
-
 }
