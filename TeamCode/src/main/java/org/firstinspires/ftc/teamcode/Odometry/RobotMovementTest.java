@@ -4,14 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.Range;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.toRadians;
+import static com.qualcomm.robotcore.util.Range.*;
+import static java.lang.Math.*;
 import static org.firstinspires.ftc.teamcode.Odometry.mathFunctions.interpretAngle;
 
-
-@Autonomous(name = "Robot Movement Test")
+@Autonomous(name="Robot Movement Test")
 public class RobotMovementTest extends LinearOpMode {
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;
@@ -20,7 +18,7 @@ public class RobotMovementTest extends LinearOpMode {
 
     final double COUNTS_PER_INCH = 307.699557;
 
-    //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
+    //Hardware Map Names for drive motors and odometry wheels.
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
     String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
@@ -28,14 +26,17 @@ public class RobotMovementTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
+
+        telemetry.addData(" Status", " Initializing");
+        telemetry.update();
+
+        //Initialize hardware map values.
         initDriveHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
 
         telemetry.addData("Status", "Init Complete");
         telemetry.update();
-        waitForStart();
 
-        //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions
+        //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions.
         globalPositionUpdate = new globalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
@@ -43,14 +44,25 @@ public class RobotMovementTest extends LinearOpMode {
         globalPositionUpdate.reverseRightEncoder();
         globalPositionUpdate.reverseNormalEncoder();
 
-        if (opModeIsActive()) {
-            goToPosition(24, 0, 0.25, 90, 2, 0.3);
+        waitForStart();
+
+        if(opModeIsActive()) {
+            turnAndGo(0, 12, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(-50, 12, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(0, 12, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(0, 100, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(-50, 100, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(0, 100, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(0, 10, 0.5, 0, 2, 0.3, 0.3);
+            turnToPosition(0, 12, 0.3);
         }
 
         //Stop the thread
         globalPositionUpdate.stop();
 
     }
+
+    //This function handles the actual movement of the robot.
 
     /**
      * @param x X point to go to
@@ -84,31 +96,32 @@ public class RobotMovementTest extends LinearOpMode {
             double movement_x = movementXPower * movementSpeed;
             double movement_y = movementYPower * movementSpeed;
 
-            double relativeTurnAngle = relativeAngleToTarget - toRadians(180) + toRadians(preferredAngle);
-            double movement_turn = Range.clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
+            double relativeTurnAngle = relativeAngleToTarget - toRadians(90) + toRadians(preferredAngle);
+            double movement_turn = clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
 
             if(distanceToTarget < 5) {
                 movement_turn = 0;
             }
 
-
             //Lots of Telemetry. Remove some of this.
 
-            //Display Global (x, y, theta) coordinates
+            //telemetry.addData( " x" , movement_x);
+            //telemetry.addData(" y", movement_y);
+            //telemetry.addData(" theta", movement_turn);
+            //telemetry.addData( " Distance to Target", distanceToTarget);
+            //telemetry.addData( " Absolute Angle to Target", Math.toDegrees(absoluteAngleToTarget));
+            //telemetry.addData( " Relative to Target", Math.toDegrees(relativeAngleToTarget));
+            //telemetry.addData( " Relative Turn Angle", Math.toDegrees(relativeTurnAngle));
+            telemetry.addData(" xpos", robotX);
             telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
-            telemetry.addData("Y Position", -globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
-            telemetry.addData("Orientation (Degrees)", interpretAngle(globalPositionUpdate.returnOrientation()));
-            telemetry.addData("Unchanged Orientation", globalPositionUpdate.returnOrientation());
-            telemetry.addData("Vertical left encoder position", verticalLeft.getCurrentPosition());
-            telemetry.addData("Vertical right encoder position", verticalRight.getCurrentPosition());
-            telemetry.addData("horizontal encoder position", horizontal.getCurrentPosition());
+            telemetry.addData(" ypos", robotY);
+            telemetry.addData(" orientation", toDegrees(robotOrientation)+90);
             telemetry.update();
 
             //Testing values
-            movement_x = 0;
-            movement_y = 0;
-            movement_turn = 0;
-
+            //movement_x = 0;
+            //movement_y = 0;
+            //movement_turn = 0;
 
             double leftFront = -movement_y - movement_x + movement_turn;
             double rightFront = movement_y - movement_x + movement_turn;
@@ -143,10 +156,10 @@ public class RobotMovementTest extends LinearOpMode {
                 leftBack = leftBack/lbAbs;
             }
 
-            leftFront = Range.clip(leftFront, -1, 1);
-            rightFront = Range.clip(rightFront, -1, 1);
-            rightBack = Range.clip(rightBack, -1, 1);
-            leftBack = Range.clip(leftBack, -1, 1);
+            leftFront = clip(leftFront, -1, 1);
+            rightFront = clip(rightFront, -1, 1);
+            rightBack = clip(rightBack, -1, 1);
+            leftBack = clip(leftBack, -1, 1);
 
             right_front.setPower(rightFront);
             right_back.setPower(rightBack);
@@ -155,14 +168,152 @@ public class RobotMovementTest extends LinearOpMode {
         }
 
         //Turns motors off
-        right_front.setPower(0);
-        right_back.setPower(0);
-        left_front.setPower(0);
-        left_back.setPower(0);
-
+        StopMotors();
 
     }
 
+    public void turnAndGo(double x, double y, double movementSpeed, double preferredAngle, double error, double turnSpeed1, double turnSpeed2) {
+        turnToPosition(x, y, turnSpeed1);
+        goToPosition(x, y, movementSpeed, preferredAngle, error, turnSpeed2);
+    }
+
+    public void goToPositionWithoutTurn(double x, double y, double movementSpeed, double preferredAngle, double error) {
+        double distanceToTarget = Math.hypot(x-(globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH), y-(-globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH));
+
+        while(opModeIsActive() && distanceToTarget > error) {
+            double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+            double robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+            double robotOrientation = toRadians(interpretAngle(globalPositionUpdate.returnOrientation()));
+
+            distanceToTarget = Math.hypot(x-(robotX), y-(robotY));
+
+            double absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
+            double relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation));
+
+            double relativeXToPoint = Math.cos(relativeAngleToTarget) * distanceToTarget;
+            double relativeYToPoint = Math.sin(relativeAngleToTarget) * distanceToTarget;
+
+            double MovementPowerDenominator = abs(relativeXToPoint) + abs(relativeYToPoint);
+            double movementXPower = relativeXToPoint / MovementPowerDenominator;
+            double movementYPower = relativeYToPoint / MovementPowerDenominator;
+
+            double movement_x = movementXPower * movementSpeed;
+            double movement_y = movementYPower * movementSpeed;
+
+            double relativeTurnAngle = relativeAngleToTarget - toRadians(90) + toRadians(preferredAngle);
+
+            //Lots of Telemetry. Remove some of this.
+
+            //telemetry.addData( " x" , movement_x);
+            //telemetry.addData(" y", movement_y);
+            //telemetry.addData(" theta", movement_turn);
+            //telemetry.addData( " Distance to Target", distanceToTarget);
+            //telemetry.addData( " Absolute Angle to Target", Math.toDegrees(absoluteAngleToTarget));
+            //telemetry.addData( " Relative to Target", Math.toDegrees(relativeAngleToTarget));
+            //telemetry.addData( " Relative Turn Angle", Math.toDegrees(relativeTurnAngle));
+            telemetry.addData(" xpos", robotX);
+            telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData(" ypos", robotY);
+            telemetry.addData(" orientation", toDegrees(robotOrientation)+90);
+            telemetry.update();
+
+            //Testing values
+            //movement_x = 0;
+            //movement_y = 0;
+            double movement_turn = 0;
+
+            double leftFront = -movement_y - movement_x + movement_turn;
+            double rightFront = movement_y - movement_x + movement_turn;
+            double rightBack = movement_y + movement_x + movement_turn;
+            double leftBack = -movement_y + movement_x + movement_turn;
+
+            //Scale Motor Powers to preserve movement shape
+            double lfAbs = abs(leftFront);
+            double rfAbs = abs(rightFront);
+            double rbAbs = abs(rightBack);
+            double lbAbs = abs(leftBack);
+
+            if(lfAbs > rfAbs && lfAbs > rbAbs && lfAbs > lbAbs && lfAbs > 1) {
+                leftFront = leftFront/lfAbs;
+                rightFront = rightFront/lfAbs;
+                rightBack = rightBack/lfAbs;
+                leftBack = leftBack/lfAbs;
+            } else if(rfAbs > lfAbs && rfAbs > rbAbs && rfAbs > lbAbs && rfAbs > 1) {
+                leftFront = leftFront/rfAbs;
+                rightFront = rightFront/rfAbs;
+                rightBack = rightBack/rfAbs;
+                leftBack = leftBack/rfAbs;
+            } else if(rbAbs > lfAbs && rbAbs > rfAbs && rbAbs > lbAbs && rbAbs > 1) {
+                leftFront = leftFront/rbAbs;
+                rightFront = rightFront/rbAbs;
+                rightBack = rightBack/rbAbs;
+                leftBack = leftBack/rbAbs;
+            } else if(lbAbs > lfAbs && lbAbs > rfAbs && lbAbs > rbAbs && lbAbs > 1) {
+                leftFront = leftFront/lbAbs;
+                rightFront = rightFront/lbAbs;
+                rightBack = rightBack/lbAbs;
+                leftBack = leftBack/lbAbs;
+            }
+
+            leftFront = clip(leftFront, -1, 1);
+            rightFront = clip(rightFront, -1, 1);
+            rightBack = clip(rightBack, -1, 1);
+            leftBack = clip(leftBack, -1, 1);
+
+            right_front.setPower(rightFront);
+            right_back.setPower(rightBack);
+            left_front.setPower(leftFront);
+            left_back.setPower(leftBack);
+        }
+
+        //Turns motors off
+        StopMotors();
+
+    }
+
+    public void turnToPosition(double x, double y, double turnSpeed) {
+
+        double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+        double robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+        double robotOrientation = toRadians(interpretAngle(globalPositionUpdate.returnOrientation()));
+
+        double absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
+
+        double relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation));
+        double relativeTurnAngle = relativeAngleToTarget - toRadians(90);
+
+        double movement_turn = clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
+
+        while(opModeIsActive() && abs(movement_turn) > 0.1) {
+            robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+            robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+            robotOrientation = toRadians(interpretAngle(globalPositionUpdate.returnOrientation()));
+
+            absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
+            relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation));
+
+            relativeTurnAngle = relativeAngleToTarget - toRadians(90);
+            movement_turn = clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
+
+            telemetry.addData(" xpos", robotX);
+            telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData(" ypos", robotY);
+            telemetry.addData(" orientation", toDegrees(robotOrientation)+90);
+            telemetry.addData(" movement_turn", abs(movement_turn));
+            telemetry.update();
+
+            right_front.setPower(clip(movement_turn, -1, 1));
+            right_back.setPower(clip(movement_turn, -1, 1));
+            left_front.setPower(clip(movement_turn, -1, 1));
+            left_back.setPower(clip(movement_turn, -1, 1));
+        }
+
+        //Turns motors off
+        StopMotors();
+
+    }
+
+    //Function to initialize all the motors and encoders. Used when preparing for the OpMode to start.
     private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
         right_front = hardwareMap.dcMotor.get(rfName);
         right_back = hardwareMap.dcMotor.get(rbName);
@@ -191,6 +342,10 @@ public class RobotMovementTest extends LinearOpMode {
         verticalRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         horizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -200,8 +355,16 @@ public class RobotMovementTest extends LinearOpMode {
         left_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_back.setDirection(DcMotorSimple.Direction.REVERSE);
+        left_back.setDirection(DcMotorSimple.Direction.REVERSE);
 
         telemetry.addData("Status", "Hardware Map Init Complete");
         telemetry.update();
+    }
+
+    public void StopMotors() {
+        right_front.setPower(0);
+        right_back.setPower(0);
+        left_front.setPower(0);
+        left_back.setPower(0);
     }
 }

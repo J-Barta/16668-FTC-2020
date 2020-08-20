@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.Odometry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name="Test Odometry Autonomous")
-public class TestAutonOdometry extends robotMovementRadians {
+public class TestAutonOdometry extends RobotMovementRadians {
 
    @Override
     public void runOpMode() throws InterruptedException {

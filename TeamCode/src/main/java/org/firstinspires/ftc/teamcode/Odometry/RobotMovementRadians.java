@@ -6,36 +6,23 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.toDegrees;
-import static java.lang.Math.toRadians;
+import static java.lang.Math.*;
 import static org.firstinspires.ftc.teamcode.Odometry.mathFunctions.interpretAngle;
 
-/*
-    This class handles all robot movement with odometry. Use this as a superclass for
-  future Autons. See TestAutonOdometry to see how.
- */
 @Autonomous(name="Robot Movement Radians")
-public class robotMovementRadians extends LinearOpMode {
+public class RobotMovementRadians extends LinearOpMode {
+    //Drive motors
+    public DcMotor right_front, right_back, left_front, left_back;
+    //Odometry wheels
+    DcMotor verticalLeft, verticalRight, horizontal;
 
-    //Initialize motors and encoders
+    final double COUNTS_PER_INCH = 307.699557;
 
-
-
+    //Hardware Map Names for drive motors and odometry wheels.
     String rfName = "right_front", rbName = "right_back", lfName = "left_front", lbName = "left_back";
     String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = lbName;
 
-    public DcMotor right_front;
-    public DcMotor right_back;
-    public DcMotor left_front;
-    public DcMotor left_back;
-
-    DcMotor verticalLeft, verticalRight, horizontal;
-    final double COUNTS_PER_INCH = 307.699557;
-
     globalCoordinatePosition globalPositionUpdate;
-
-    //Initialize HardwareMap and get ready to run the OpMode
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -43,11 +30,13 @@ public class robotMovementRadians extends LinearOpMode {
         telemetry.addData(" Status", " Initializing");
         telemetry.update();
 
+        //Initialize hardware map values
         initDriveHardwareMap(rfName, rbName, lfName, lbName,  verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
 
         telemetry.addData(" Status", " Waiting for Start");
         telemetry.update();
 
+        //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions.
         globalPositionUpdate = new globalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
@@ -61,7 +50,7 @@ public class robotMovementRadians extends LinearOpMode {
             goToPosition(24, 0, 0.25, 90, 2, 0.3);
         }
 
-
+        //Stop the thread
         globalPositionUpdate.stop();
 
     }
@@ -107,7 +96,6 @@ public class robotMovementRadians extends LinearOpMode {
                 movement_turn = 0;
             }
 
-
             //Lots of Telemetry. Remove some of this.
 
             telemetry.addData( " x" , movement_x);
@@ -127,7 +115,6 @@ public class robotMovementRadians extends LinearOpMode {
             movement_x = 0;
             movement_y = 0;
             movement_turn = 0;
-
 
             double leftFront = -movement_y - movement_x + movement_turn;
             double rightFront = movement_y - movement_x + movement_turn;
@@ -178,7 +165,6 @@ public class robotMovementRadians extends LinearOpMode {
         right_back.setPower(0);
         left_front.setPower(0);
         left_back.setPower(0);
-
 
     }
 
