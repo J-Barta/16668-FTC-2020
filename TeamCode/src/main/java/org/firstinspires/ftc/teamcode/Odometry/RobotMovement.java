@@ -9,8 +9,8 @@ import static com.qualcomm.robotcore.util.Range.*;
 import static java.lang.Math.*;
 import static org.firstinspires.ftc.teamcode.Odometry.mathFunctions.interpretAngle;
 
-@Autonomous(name="Robot Movement Test")
-public class RobotMovementTest extends LinearOpMode {
+@Autonomous(name="Robot Movement")
+public class RobotMovement extends LinearOpMode {
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;
     //Odometry Wheels
