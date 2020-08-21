@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.Odometry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name="Test Odometry Autonomous")
-public class TestAutonOdometry extends RobotMovementRadiansOld {
+public class TestAutonOdometry extends RobotMovement {
 
    @Override
     public void runOpMode() throws InterruptedException {
@@ -19,7 +19,6 @@ public class TestAutonOdometry extends RobotMovementRadiansOld {
         positionThread.start();
 
         globalPositionUpdate.reverseRightEncoder();
-        globalPositionUpdate.reverseNormalEncoder();
 
        telemetry.addData(" Status", " Waiting for Start");
        telemetry.update();
@@ -27,11 +26,15 @@ public class TestAutonOdometry extends RobotMovementRadiansOld {
         waitForStart();
 
         if(opModeIsActive()) {
-            goToPosition(-24, 24, 0.5, 0, 2, 0.3);
-            goToPosition(-24 , -24, 0.5, 0, 2, 0.3);
-            goToPosition(0, 0, 0.4, 0, 0.5, 0.3);
-            goToPosition(-12, 0, 0.4, 0, 0.5, 0.3);
-            goToPosition(0, 0, 0.4, 0, 0.5, 0.3);
+            turnAndGo(-1.48, 111.15, 0.5, 0, 2, 0.3, 0.3);
+            turnToPositionNoStop(-61.49, 150, 0.3);
+            turnAndGo(-61.49, 112.33, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(11.76, 116.87, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(14.55, 49.18, 0.5, 0, 2, 0.3, 0.3);
+
+            turnToPosition(14.55, 38.18, 0.3);
+
+            sleep(500);
         }
 
 

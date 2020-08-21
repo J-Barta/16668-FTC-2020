@@ -42,17 +42,17 @@ public class RobotMovement extends LinearOpMode {
         positionThread.start();
 
         globalPositionUpdate.reverseRightEncoder();
-        globalPositionUpdate.reverseNormalEncoder();
 
         waitForStart();
 
         if(opModeIsActive()) {
             turnAndGo(0, 12, 0.5, 0, 2, 0.3, 0.3);
-            turnAndGo(-50, 12, 0.5, 0, 2, 0.3, 0.3);
-            turnAndGo(0, 12, 0.5, 0, 2, 0.3, 0.3);
-            turnAndGo(0, 100, 0.5, 0, 2, 0.3, 0.3);
-            turnAndGo(-50, 100, 0.5, 0, 2, 0.3, 0.3);
-            turnAndGo(0, 100, 0.5, 0, 2, 0.3, 0.3);
+            turnToPositionNoStop(-50,62, 0.3);
+            turnAndGo(-60, 12, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(-90, 54, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(-60, 110, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(0, 110, 0.5, 0, 2, 0.3, 0.3);
+            turnAndGo(13, 70, 0.5, 0, 2, 0.3, 0.3);
             turnAndGo(0, 10, 0.5, 0, 2, 0.3, 0.3);
             turnToPosition(0, 12, 0.3);
         }
@@ -313,8 +313,47 @@ public class RobotMovement extends LinearOpMode {
 
     }
 
+    public void turnToPositionNoStop(double x, double y, double turnSpeed) {
+
+        double robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+        double robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+        double robotOrientation = toRadians(interpretAngle(globalPositionUpdate.returnOrientation()));
+
+        double absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
+
+        double relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation));
+        double relativeTurnAngle = relativeAngleToTarget - toRadians(90);
+
+        double movement_turn = clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
+
+        while(opModeIsActive() && abs(movement_turn) > 0.25) {
+            robotX = globalPositionUpdate.returnXCoordinate()/COUNTS_PER_INCH;
+            robotY = -globalPositionUpdate.returnYCoordinate()/COUNTS_PER_INCH;
+            robotOrientation = toRadians(interpretAngle(globalPositionUpdate.returnOrientation()));
+
+            absoluteAngleToTarget = Math.atan2(y-robotY, x-robotX);
+            relativeAngleToTarget = mathFunctions.AngleWrap(absoluteAngleToTarget - (robotOrientation));
+
+            relativeTurnAngle = relativeAngleToTarget - toRadians(90);
+            movement_turn = clip(relativeTurnAngle/ toRadians(30), -1, 1) * turnSpeed;
+
+            telemetry.addData(" xpos", robotX);
+            telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData(" ypos", robotY);
+            telemetry.addData(" orientation", toDegrees(robotOrientation)+90);
+            telemetry.addData(" movement_turn", abs(movement_turn));
+            telemetry.update();
+
+            right_front.setPower(clip(movement_turn, -1, 1));
+            right_back.setPower(clip(movement_turn, -1, 1));
+            left_front.setPower(clip(movement_turn, -1, 1));
+            left_back.setPower(clip(movement_turn, -1, 1));
+        }
+
+    }
+
     //Function to initialize all the motors and encoders. Used when preparing for the OpMode to start.
-    private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
+    void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
         right_front = hardwareMap.dcMotor.get(rfName);
         right_back = hardwareMap.dcMotor.get(rbName);
         left_front = hardwareMap.dcMotor.get(lfName);
