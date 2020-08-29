@@ -103,15 +103,6 @@ public class RobotMovement extends LinearOpMode {
                 movement_turn = 0;
             }
 
-            //Lots of Telemetry. Remove some of this.
-
-            //telemetry.addData( " x" , movement_x);
-            //telemetry.addData(" y", movement_y);
-            //telemetry.addData(" theta", movement_turn);
-            //telemetry.addData( " Distance to Target", distanceToTarget);
-            //telemetry.addData( " Absolute Angle to Target", Math.toDegrees(absoluteAngleToTarget));
-            //telemetry.addData( " Relative to Target", Math.toDegrees(relativeAngleToTarget));
-            //telemetry.addData( " Relative Turn Angle", Math.toDegrees(relativeTurnAngle));
             telemetry.addData(" xpos", robotX);
             telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
             telemetry.addData(" ypos", robotY);
