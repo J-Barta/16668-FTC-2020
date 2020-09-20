@@ -14,11 +14,11 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 
-<<<<<<< HEAD
+
 android {
     buildToolsVersion = '29.0.2'
 }
-=======
+
 repositories {
     maven { url = "https://dl.bintray.com/first-tech-challenge/ftcsdk/" }
 }
@@ -26,4 +26,4 @@ repositories {
 dependencies {
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }
->>>>>>> e27863389708bb4bb480ffb0c29f437fb6ab471a
+
